@@ -1,0 +1,29 @@
+body {
+    font-size: 32px;
+}
+
+.header-container {
+    border: 1px solid black;
+    display: flex;
+}
+.node-container {
+    border: 1px solid blue;
+}
+.nodes-container {
+    border: 1px solid purple;
+}
+
+.node-main {
+    display: flex;
+    border: 1px solid yellow;
+}
+.node-head{
+    border: 1px solid red;
+}
+.node-tail {
+    border: 1px solid orange;
+}
+.node-children {
+    border: 1px solid green;
+    padding-left: 20px;
+}
