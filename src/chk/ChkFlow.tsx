@@ -18,18 +18,20 @@ import DefaultTreeTailEdit from './DefaultTreeTailEdit'
 const ChkFlow: React.FC<Partial<Types.ChkFlowProps>> =  function (props: Partial<Types.ChkFlowProps>) {
 
   const l1 = {
-    '0' : { text: 'blah0', children: ['1', '3'], isCollapsed: false },
-    '1' : { text: 'blah1', children: ['5', '2'], isCollapsed: false  },
-    '2' : { text: 'blah2', children: ['4'], isCollapsed: false  },
-    '3' : { text: 'blah3', children: [], isCollapsed: false  },
-    '4' : { text: 'blah4', children: [], isCollapsed: false  },
-    '5' : { text: 'blah5', children: ['6', '7'], isCollapsed: false  },
-    '6' : { text: 'blah6', children: [], isCollapsed: false  },
-    '7' : { text: 'blah7', children: [], isCollapsed: false  },
+    '0' : { text: 'blah0', rel: {'children':['1', '3']}, isCollapsed: false },
+    '1' : { text: 'blah1', rel: {'children':['5', '2']}, isCollapsed: false  },
+    '2' : { text: 'blah2', rel: {'children':['4']}, isCollapsed: false  },
+    '3' : { text: 'blah3', rel: {'children':[]}, isCollapsed: false  },
+    '4' : { text: 'blah4', rel: {'children':[]}, isCollapsed: false  },
+    '5' : { text: 'blah5', rel: {'children':['6', '7']}, isCollapsed: false  },
+    '6' : { text: 'blah6', rel: {'children':[]}, isCollapsed: false  },
+    '7' : { text: 'blah7', rel: {'children':[]}, isCollapsed: false  },
   }
 
   let environment = {
     rootPath: ['0', '1', '5'],
+    rel: 'children',
+    homeNode: ['0'],
     ...props.state
   }
 

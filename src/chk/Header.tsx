@@ -10,7 +10,7 @@ import * as Types from './types'
 const Header: React.FC<Types.ChkFlowProps> = (props) => { 
   
   const getHistoryList = (index:number, list:number[]): number[] => {
-    if (index == 0){
+    if (index < 0){
       return list.reverse()
     }
     list.push(props.rootPath[index])
@@ -19,12 +19,17 @@ const Header: React.FC<Types.ChkFlowProps> = (props) => {
   
   const history = props.rootPath.map((nodeId: Types.NodeId, index:number)=>{
 
-    const clickFn = () => {props.setPath(getHistoryList(index, []))} 
-    return ( <div onClick={clickFn} key={index}> &gt;{nodeId} &nbsp; </div>  )
+    const idClickFn = () => {props.setPath(getHistoryList(index, []))} 
+    return ( <div onClick={idClickFn} key={index}> &gt;{nodeId} &nbsp; </div>  )
   })
   
+  const goHome = () => { props.setPath([props.homeNode]) }
+
   return (
     <div className="header-container">
+        <div className="home-node-button" onClick={goHome}>
+        &#91;&middot;&#93;
+        </div>
         {history}
     </div>
   )

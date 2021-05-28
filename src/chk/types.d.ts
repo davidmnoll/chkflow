@@ -53,6 +53,7 @@ interface TreeNodeProps<T extends BaseNodeInfo> {
     settings: ChkFlowSettings;
     render: TreeNodeComponent;
     updateNode: (id: NodeId, data: T) => boolean;
+    setPath: (path: NodeId[]) => void;
 }
 // interface TreeNodeState<T extends BaseNodeInfo> {
 
