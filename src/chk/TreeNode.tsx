@@ -60,6 +60,7 @@ class TreeNode<T extends Types.BaseNodeInfo> extends React.Component<Types.TreeN
         startEdit={this.startEdit.bind(this)}
         saveEdit={this.saveEdit.bind(this)}
         cancelEdit={this.cancelEdit.bind(this)} 
+        setPath={this.props.setPath}
         >
           {this.props.children}
         </TreeNodeDisplay>

@@ -11,7 +11,7 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
 
   constructor(props: Types.ChkFlowBaseProps){
     super(props)
-    this.state = { environment: props.environment, nodes: props.nodes, settings: props.settings }
+    this.state = {...this.state, environment: props.environment, nodes: props.nodes, settings: props.settings }
   }  
 
   getNodeInfo(id: Types.NodeId): any {
@@ -20,25 +20,26 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
   }
 
   updateNode(id: Types.NodeId, data: any ){
-    this.setState({nodes: {...this.state.nodes, [id]: { ...this.state.nodes[id], ...data } }})
+    this.setState({...this.state, nodes: {...this.state.nodes, [id]: { ...this.state.nodes[id], ...data } }})
     return true;
   }
   
   setPath(path: Types.NodeId[]){
-    this.setState({environment: {...this.state.environment, rootPath: path }})
+    this.setState({...this.state, environment: {...this.state.environment, rootPath: path }})
   }
 
   getComponentTree(id: Types.NodeId) {
     return ( 
-      this.state.nodes[id].children.length > 0 ? 
+      this.state.nodes[id].rel[this.state.environment.rel].length > 0 ? 
         (<TreeNode
           key={id}
           nodePath={[...this.state.environment.rootPath, id]} 
           nodeInfo={this.getNodeInfo(id)} 
           settings={this.state.settings} 
           render={this.state.settings.treeNodeComponent}
+          setPath={this.setPath.bind(this)}
           updateNode={this.updateNode.bind(this)}>
-          {this.state.nodes[id].children.map((id: Types.NodeId, index: number) => (
+          {this.state.nodes[id].rel[this.state.environment.rel].map((id: Types.NodeId, index: number) => (
             this.getComponentTree(id)
           ))}
         </TreeNode>)
@@ -49,6 +50,7 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
           settings={this.state.settings} 
           render={this.state.settings.treeNodeComponent}
           updateNode={this.updateNode.bind(this)} 
+          setPath={this.setPath.bind(this)}
           />)
     )
   }
@@ -65,6 +67,7 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
           {...this.props} 
           setPath={this.setPath.bind(this)}
           rootPath={this.state.environment.rootPath} 
+          homeNode={this.state.environment.homeNode}
         />
         <div className="nodes-container">
           {this.getComponentTree(this.state.environment.rootPath[this.state.environment.rootPath.length - 1])}

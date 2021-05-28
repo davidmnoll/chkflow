@@ -12,7 +12,14 @@ const DefaultTreeNode: React.FC<Types.DefaultTreeNodeProps>  = function(props){
   return (
     <div className="node-container">
       <div className="node-main">
-        <TreeHead isCollapsed={props.isCollapsed} collapse={props.collapse} toggle={props.toggle} />
+        <TreeHead 
+          isCollapsed={props.isCollapsed} 
+          collapse={props.collapse} 
+          toggle={props.toggle} 
+          setPath={props.setPath} 
+          nodeInfo={props.nodeInfo} 
+          nodePath={props.nodePath}
+          />
         {props.editMode 
         ? (<TreeTailEdit nodeInfo={props.nodeInfo} saveEdit={props.saveEdit} cancelEdit={props.cancelEdit} />)
         : (<TreeTailDisplay nodeInfo={props.nodeInfo}  startEdit={props.startEdit}/>)
