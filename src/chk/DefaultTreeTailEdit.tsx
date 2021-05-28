@@ -7,6 +7,7 @@ import * as Types from './types.d'
 const DefaultTreeTailEdit: React.FC<Types.DefaultTreeTailEditProps> = function (props: Types.DefaultTreeTailEditProps) {
     let textContainer: HTMLDivElement;
     const saveEdit = () => {  props.saveEdit({text: textContainer.textContent}) }
+    console.log(props.getRelation(props.nodePath))
 
     return (<div 
         contentEditable="true"  
