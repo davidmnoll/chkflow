@@ -52,8 +52,10 @@ interface TreeNodeProps<T extends BaseNodeInfo> {
     nodeInfo: T;
     settings: ChkFlowSettings;
     render: TreeNodeComponent;
-    updateNode: (id: NodeId, data: T) => boolean;
+    updateNode: (id: NodeId, data: T) => void;
     setPath: (path: NodeId[]) => void;
+    getRelation: (path:NodeId[]) => NodeId;
+    setRelation: (path:NodeId[], rel:NodeId) => void;
 }
 // interface TreeNodeState<T extends BaseNodeInfo> {
 

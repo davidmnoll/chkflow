@@ -46,6 +46,8 @@ class TreeNode<T extends Types.BaseNodeInfo> extends React.Component<Types.TreeN
 
     return (
       <TreeNodeDisplay 
+        getRelation={this.props.getRelation}
+        setRelation={this.props.setRelation}
         settings={this.props.settings}
         nodeInfo={this.props.nodeInfo}
         nodePath={this.props.nodePath}
