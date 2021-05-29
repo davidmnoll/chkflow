@@ -63,6 +63,10 @@ class TreeNode<T extends Types.BaseNodeInfo> extends React.Component<Types.TreeN
         saveEdit={this.saveEdit.bind(this)}
         cancelEdit={this.cancelEdit.bind(this)} 
         setPath={this.props.setPath}
+        newChild={this.props.newChild}
+        newChildUnderThisNode={this.props.newChildUnderThisNode}
+        moveChildFromPath={this.props.moveChildFromPath}
+        moveUnderPreviousNode={this.props.moveUnderPreviousNode}
         >
           {this.props.children}
         </TreeNodeDisplay>
