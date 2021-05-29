@@ -111,7 +111,6 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
 
   setNodeRel(baseId: Types.NodeId, relId: Types.NodeId, subId: Types.NodeId ){
     const newRels = [...this.state.nodes[baseId].rel[relId], subId]
-    console.log('setNodeRel - start', baseId, relId, subId, this.state.nodes, [...this.state.nodes[baseId].rel[relId]], [...this.state.nodes[baseId].rel[relId], subId], newRels)
     this.setState({...this.state, 
       nodes: {
         ...this.state.nodes, 
@@ -119,12 +118,11 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
           ...this.state.nodes[baseId], 
           rel: {
             ...this.state.nodes[baseId].rel, 
-            [relId]: 'asdfasdfad' 
+            [relId]: newRels 
           } 
         } 
       }
     })
-    console.log('setNodeRel - end', baseId, relId, subId, this.state.nodes)
   }
 
   delNodeRel(baseId: Types.NodeId, relId: Types.NodeId, subId: Types.NodeId ){
@@ -138,6 +136,28 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
             [relId]: [...this.state.nodes[baseId].rel[relId].filter((key:Types.NodeId)=> key != subId)] 
           } 
         } 
+      }
+    })
+  }
+
+  moveNodeRel(oldBaseId: Types.NodeId, relId: Types.NodeId, subId: Types.NodeId, newBaseId: Types.NodeId){
+    this.setState({...this.state, 
+      nodes: {
+        ...this.state.nodes, 
+        [oldBaseId]: {
+          ...this.state.nodes[oldBaseId], 
+          rel: {
+            ...this.state.nodes[oldBaseId].rel, 
+            [relId]: [...this.state.nodes[oldBaseId].rel[relId].filter((key:Types.NodeId)=> key != subId)] 
+          } 
+        },
+        [newBaseId]: {
+          ...this.state.nodes[newBaseId], 
+          rel: {
+            ...this.state.nodes[newBaseId].rel, 
+            [relId]: [...this.state.nodes[newBaseId].rel[relId], subId] 
+          } 
+        },
       }
     })
   }
@@ -156,12 +176,10 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
   moveUnderPreviousNode(path: Types.NodeId[]){
     const thisNodeRelation = this.getRelation(path)
     const thisNodeIndex = this.state.nodes[path[path.length - 2]].rel[thisNodeRelation].indexOf(path[path.length - 1])
-    const previousNodeId = this.state.nodes[path[path.length - 2]].rel[thisNodeRelation][thisNodeIndex - 1]
-    console.log('moveunder',this.state.nodes[path[path.length - 2]], thisNodeIndex, previousNodeId, thisNodeRelation, path)
-    this.setNodeRel(previousNodeId, thisNodeRelation, path[path.length - 1])
-    console.log('moveunder',this.state.nodes[previousNodeId], thisNodeIndex, previousNodeId, thisNodeRelation, path)
-    this.delNodeRel(path[path.length - 2], thisNodeRelation, path[path.length - 1])
-    console.log('moveunder',this.state.nodes[path[path.length - 2]], thisNodeIndex, previousNodeId, thisNodeRelation, path)
+    if (thisNodeIndex !== 0){
+      const previousNodeId = this.state.nodes[path[path.length - 2]].rel[thisNodeRelation][thisNodeIndex - 1]
+      this.moveNodeRel(path[path.length-2], thisNodeRelation, path[path.length-1], previousNodeId)
+    }
     
   }
   newChildUnderThisNode(path: Types.NodeId[]){
