@@ -27,7 +27,7 @@ type ChkFlowState = any
 
 /** Node state */
 
-type NodeId = string | number
+type NodeId = string 
 
 type ChkFlowNodes<T extends BaseNodeInfo> = {
     [nodeId:NodeId]: T
@@ -52,10 +52,15 @@ interface TreeNodeProps<T extends BaseNodeInfo> {
     nodeInfo: T;
     settings: ChkFlowSettings;
     render: TreeNodeComponent;
+    relation: NodeId;
     updateNode: (id: NodeId, data: T) => void;
     setPath: (path: NodeId[]) => void;
     getRelation: (path:NodeId[]) => NodeId;
     setRelation: (path:NodeId[], rel:NodeId) => void;
+    newChild: (path:NodeId[]) => void;
+    moveChildFromPath: (path:NodeId[], newParent: NodeId) => void;
+    moveUnderPreviousNode: (path:NodeId[]) => void;
+    newChildUnderThisNode: (path:NodeId[]) => void;
 }
 // interface TreeNodeState<T extends BaseNodeInfo> {
 

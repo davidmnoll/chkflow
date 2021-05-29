@@ -7,7 +7,7 @@ import * as Types from './types'
 
 //Todo: create default header
 
-const Header: React.FC<Types.ChkFlowProps> = (props) => { 
+const Header: React.FC<Types.ChkFlowProps> = (props: any) => { 
   
   const getHistoryList = (index:number, list:number[]): number[] => {
     if (index < 0){
