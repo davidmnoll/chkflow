@@ -2,12 +2,12 @@
 import React from 'react'
 import * as Types from './types' 
 import TreeNode from './TreeNode'
+import { eqProps } from 'ramda'
 
 const DefaultTreeNode: React.FC<Types.DefaultTreeNodeProps>  = function(props){ 
     
   const TreeHead = props.settings.treeHeadComponent as React.ElementType
-  const TreeTailEdit = props.settings.treeTailEditComponent as React.ElementType
-  const TreeTailDisplay = props.settings.treeTailDisplayComponent as React.ElementType
+  const TreeTail = props.settings.treeTailComponent as React.ElementType
 
   return (
     <div className="node-container">
@@ -23,8 +23,8 @@ const DefaultTreeNode: React.FC<Types.DefaultTreeNodeProps>  = function(props){
           moveChildFromPath={props.moveChildFromPath}
           moveUnderPreviousNode={props.moveUnderPreviousNode}
           />
-        {props.editMode 
-        ? (<TreeTailEdit 
+        <TreeTail
+          editMode={props.editMode}
           nodePath={props.nodePath} 
           nodeInfo={props.nodeInfo} 
           saveEdit={props.saveEdit} 
@@ -32,13 +32,8 @@ const DefaultTreeNode: React.FC<Types.DefaultTreeNodeProps>  = function(props){
           getRelation={props.getRelation} 
           newChild={props.newChild} 
           newChildUnderThisNode={props.newChildUnderThisNode} 
-          moveUnderPreviousNode={props.moveUnderPreviousNode} />)
-        : (<TreeTailDisplay 
-          nodePath={props.nodePath} 
-          nodeInfo={props.nodeInfo}  
-          startEdit={props.startEdit} 
-          setRelation={props.setRelation}/>)
-        }
+          moveUnderPreviousNode={props.moveUnderPreviousNode} 
+          />
       </div>
       {props.isCollapsed || !props.children || !(props.children.length > 0) ?
         ('')

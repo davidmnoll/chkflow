@@ -6,8 +6,7 @@ import React from "react";
 type ChkFlowSettings = {
     treeNodeComponent: TreeNodeComponent,
     treeHeadComponent: TreeHeadComponent,
-    treeTailDisplayComponent: TreeTailDisplayComponent,
-    treeTailEditComponent: TreeTailEditComponent,
+    treeTailComponent: TreeTailEditComponent,
 }
 
 interface ChkFlowBaseProps {
@@ -69,13 +68,11 @@ type TreeNodeState<T> = any
 
 type DefaultTreeNodeProps = any
 type DefaultTreeHeadProps = any
-type DefaultTreeTailEditProps = any
-type DefaultTreeTailDisplayProps = any
+type DefaultTreeTailProps = any
 
 type TreeNodeComponent<T extends BaseNodeInfo> = React.FC<TreeNodeProps<T>> | React.Component<TreeNodeProps<T>>
 type TreeHeadComponent = React.FC<TreeHeadProps> | React.Component<TreeHeadProps>
-type TreeTailDisplayComponent = React.FC<TreeTailDisplayProps> | React.Component<TreeTailDisplayProps>
-type TreeTailEditComponent = React.FC<TreeTailEditProps> | React.Component<TreeTailEditProps>
+type TreeTailComponent = React.FC<TreeTailProps> | React.Component<TreeTailProps>
 
 
 interface TreeNodeInterface {
@@ -117,6 +114,5 @@ export {
     TreeNodeInterface,
     DefaultTreeNodeProps,
     DefaultTreeHeadProps,
-    DefaultTreeTailEditProps,
-    DefaultTreeTailDisplayProps,
+    DefaultTreeTailProps,
 }

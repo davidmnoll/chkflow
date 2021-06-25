@@ -54,8 +54,7 @@ class TreeNode<T extends Types.BaseNodeInfo> extends React.Component<Types.TreeN
         isCollapsed={this.state.isCollapsed}
         editMode={this.state.editMode}
         treeHead={this.props.settings.treeHeadComponent}
-        treeTailDisplay={this.props.settings.treeTailDisplayComponent}
-        treeTailEdit={this.props.settings.treeTailEditComponent}
+        treeTail={this.props.settings.treeTailComponent}
         collapse={this.collapse.bind(this)}
         expand={this.expand.bind(this)}
         toggle={this.toggle.bind(this)}

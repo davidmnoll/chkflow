@@ -5,8 +5,7 @@ import ChkFlowBase from './ChkFlowBase'
 // import TreeNode from './TreeNode'
 import DefaultTreeNode from './DefaultTreeNode'
 import DefaultTreeHead from './DefaultTreeHead'
-import DefaultTreeTailDisplay from './DefaultTreeTailDisplay'
-import DefaultTreeTailEdit from './DefaultTreeTailEdit'
+import DefaultTreeTail from './DefaultTreeTail'
 
 
 /**
@@ -38,8 +37,7 @@ const ChkFlow: React.FC<Partial<Types.ChkFlowProps>> =  function (props: Partial
   let settings = {
     treeNodeComponent: DefaultTreeNode,
     treeHeadComponent: DefaultTreeHead,
-    treeTailDisplayComponent: DefaultTreeTailDisplay,
-    treeTailEditComponent: DefaultTreeTailEdit,
+    treeTailComponent: DefaultTreeTail,
     ...props.settings
   }
 
