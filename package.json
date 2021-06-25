@@ -44,6 +44,5 @@
     ]
   },
   "devDependencies": {
-    "stryker": "^0.35.1"
   }
 }
