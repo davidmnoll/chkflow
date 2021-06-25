@@ -1,10 +1,10 @@
 import * as React from 'react'
 import './style.scss'
-import * as Types from './types.d' 
+import * as Types from './types' 
 
 
 
-const DefaultTreeTailEdit: React.FC<Types.DefaultTreeTailEditProps> = function (props: Types.DefaultTreeTailEditProps) {
+const DefaultTreeTailEdit: React.FC<Types.DefaultTreeTailProps> = function (props: Types.DefaultTreeTailProps) {
     let textContainer: HTMLDivElement;
     const saveEdit = () => {  props.saveEdit({text: textContainer.textContent}) }
     console.log(props.getRelation(props.nodePath))
@@ -56,7 +56,7 @@ const DefaultTreeTailEdit: React.FC<Types.DefaultTreeTailEditProps> = function (
     return (<div 
         contentEditable="true"  
         ref={node=>{ if(node){textContainer = node}}} 
-        onDoubleClick={saveEdit}
+        onBlurCapture={saveEdit}
         suppressContentEditableWarning={true}
         onKeyDown={keyDownListen}
     >   
