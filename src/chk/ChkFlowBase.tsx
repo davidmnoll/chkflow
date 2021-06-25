@@ -212,14 +212,14 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
       console.error('state', this.state)
       throw('node DNE')
     }
-    console.log('this node rels',id, that.state.nodes[id], this.state.nodes);
+    // console.log('this node rels',id, that.state.nodes[id], this.state.nodes);
     Object.keys(this.state.nodes[id].rel).forEach((currentRel: Types.NodeId) => {
       // console.log('rels for this type',that.state.nodes[id].rel[currentRel])
       that.state.nodes[id].rel[currentRel].forEach((currentNode: Types.NodeId)=>{
         rels[currentNode] = currentRel;
       })
     });
-    console.log('result',rels)
+    // console.log('result',rels)
     return rels;
   }
   getTotalSubRelations(id:Types.NodeId){
@@ -230,7 +230,7 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
     var that = this;
     const relations = this.getSubRelations(id)
     const hasRelations = (Object.keys(relations).length > 0);
-    console.log('total rels', relations, id, this.state.nodes[id], (Object.keys(relations).length > 0) && true)
+    // console.log('total rels', relations, id, this.state.nodes[id], (Object.keys(relations).length > 0) && true)
     return (hasRelations) ?  
       (<TreeNode
         key={id}
