@@ -61,6 +61,7 @@ interface TreeNodeProps<T extends BaseNodeInfo> {
     newChild: (path:NodeId[]) => void;
     moveChildFromPath: (path:NodeId[], newParent: NodeId) => void;
     moveUnderPreviousNode: (path:NodeId[]) => void;
+    toggleCollapse: (path:NodeId[]) => void;
     newChildUnderThisNode: (path:NodeId[]) => void;
     moveCursorToVisuallyNextNode: (path:NodeId[]) => void
     moveCursorToVisuallyPreviousNode: (path:NodeId[]) => void

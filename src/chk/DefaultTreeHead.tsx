@@ -13,7 +13,7 @@ const DefaultTreeHead: React.FC<Types.DefaultTreeHeadProps> = function (props: T
     const setAsRoot = () => {console.log('updatePathTo', props.nodePath); props.setPath([props.nodePath[props.nodePath.length - 1]])}
     const moveToHere = () => {console.log('updatePathTo', props.nodePath); props.setPath(props.nodePath)}
     return (<div className="head-container">
-        <div onClick={props.toggle} className={props.hasChildren? "collapse-toggle": "collapse-toggle no-children"}>
+        <div onClick={()=>props.toggle(props.nodePath)} className={props.hasChildren? "collapse-toggle": "collapse-toggle no-children"}>
             { !props.hasChildren ? 
                 <CheckBoxOutlineBlankOutlined /> :  
                 ( props.isCollapsed ? 

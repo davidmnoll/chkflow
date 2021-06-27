@@ -104,6 +104,9 @@ describe('properly runs node utilies & operations', ()=>{
         expect(getVisuallyPreviousNodePath(props, ["0","1", "5"])).toEqual(["0","1"])
         expect(getVisuallyPreviousNodePath(props, ["0","1","5","6"])).toEqual(["0","1","5",])
         expect(getVisuallyPreviousNodePath(props, ["0","1","5","7"])).toEqual(["0","1","5","6"])
+
+        //Get last child of (last child of last child of etc.) previous sibling
+        expect(getVisuallyPreviousNodePath(props, ["0","1", "2"])).toEqual(["0","1","5","7"])
         
     })
 
