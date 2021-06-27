@@ -2,16 +2,21 @@
 import React from 'react'
 import * as Types from './types' 
 import TreeNode from './TreeNode'
-import { eqProps } from 'ramda'
+import * as R from 'ramda'
 
 const DefaultTreeNode: React.FC<Types.DefaultTreeNodeProps>  = function(props){ 
     
   const TreeHead = props.settings.treeHeadComponent as React.ElementType
   const TreeTail = props.settings.treeTailComponent as React.ElementType
 
+  console.log('activeComp',props.activeNode, props.nodePath, (R.equals(props.activeNode, props.nodePath)))
+  const hasChildren = !(props.isCollapsed || !props.children || !(props.children.length > 0))
   return (
     <div className="node-container" id={props.nodePath[props.nodePath.length - 1]}>
-      <div className="node-main">
+      <div 
+        className={ (R.equals(props.activeNode, props.nodePath)) ? "node-main active" :  "node-main"}
+        onFocusCapture={() => {props.setActiveNode(props.nodePath)}}
+        >
         <TreeHead 
           isCollapsed={props.isCollapsed}
           collapse={props.collapse} 
@@ -20,6 +25,7 @@ const DefaultTreeNode: React.FC<Types.DefaultTreeNodeProps>  = function(props){
           nodeInfo={props.nodeInfo} 
           nodePath={props.nodePath}
           newChild={props.newChild}
+          hasChildren={props.children.length > 0}
           moveChildFromPath={props.moveChildFromPath}
           moveUnderPreviousNode={props.moveUnderPreviousNode}
           />
@@ -37,12 +43,9 @@ const DefaultTreeNode: React.FC<Types.DefaultTreeNodeProps>  = function(props){
           moveUnderPreviousNode={props.moveUnderPreviousNode} 
           />
       </div>
-      {props.isCollapsed || !props.children || !(props.children.length > 0) ?
-        ('')
-        : (<div className="node-children">
-        {props.children}
-      </div>)
-      }
+      <div className={hasChildren ? "node-children" : "node-children hidden"} >
+        {  hasChildren ? props.children : ''}
+      </div>
     </div>
   )  
     

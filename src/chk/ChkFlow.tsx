@@ -31,6 +31,7 @@ const ChkFlow: React.FC<Partial<Types.ChkFlowProps>> =  function (props: Partial
     rootPath: ['0', '1', '5'],
     rel: 'child',
     homeNode: ['0'],
+    activeNode: [],
     ...props.state
   }
 

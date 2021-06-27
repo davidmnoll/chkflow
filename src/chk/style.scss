@@ -1,32 +1,105 @@
+// @import "~font-awesome/css/font-awesome.css";
+
+
 body {
     font-size: 32px;
 }
 
 .header-container {
-    border: 1px solid black;
+    // border: 1px solid black;
     display: flex;
+    padding: 5px;
+    align-items: center;
 }
 .node-container {
-    border: 1px solid blue;
+    // border: 1px solid blue;
 }
 .nodes-container {
-    border: 1px solid purple;
+    // border: 1px solid purple;
 }
 .head-container {
     display: flex;
 }
+.history {
+    min-width: 200px;
+    display: flex;
+    align-items: center;
+    vertical-align: middle;
+
+}
+.history{
+}
+.history svg{
+    vertical-align: middle;
+}
+.node-link {
+    vertical-align: middle;
+    padding: 0px;
+    font-size: 20px;
+    color: rgba(33,33,33,1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.home-node-button {
+    vertical-align: middle;
+}
+
 .node-main {
     display: flex;
-    border: 1px solid yellow;
+    border: 1px solid white;
+    align-items: center;
 }
+.node-main.active {
+    border: 1px solid rgba(33,33,33,.05);
+    background-color: rgba(33,33,33,.03);
+}
+
 .node-head{
-    border: 1px solid red;
+    // border: 1px solid red;
 }
+.menu-dot>svg{
+    // padding: 10px;
+    fill: rgba(33,33,33,.3);
+}
+.menu-dot:hover>svg{
+    fill: rgba(33,33,33,.7);
+}
+
 .node-tail {
-    border: 1px solid orange;
-    padding: 10px;
+    // border: 1px solid orange;
+    padding: 3px;
+    font-size: 20px;
+    color: rgba(33,33,33,1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    
+    
 }
+[contenteditable].node-tail {
+    outline: 0px solid transparent;
+}
+
 .node-children {
-    border: 1px solid green;
+    // border: 1px solid green;
     padding-left: 20px;
+    transition: opacity 1300ms;
+    opacity: 1;
+}
+.node-children.hidden {
+    transition: opacity 1300ms;
+    opacity: 0;
+}
+
+.collapse-toggle.no-children{
+    color: rgba(33,33,33,.1);
+}
+.collapse-toggle:hover{
+    opacity: 1;
+}
+.collapse-toggle{
+    color: rgba(0,33,99,.5);
+    opacity: .7;
+}
+.collapse-toggle > .collapsed{
+    transition: color 300ms;
+    color: rgba(0,33,99,1);
+    opacity: .7;
 }

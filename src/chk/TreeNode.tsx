@@ -60,6 +60,8 @@ class TreeNode<T extends Types.BaseNodeInfo> extends React.Component<Types.TreeN
         toggle={this.toggle.bind(this)}
         startEdit={this.startEdit.bind(this)}
         saveEdit={this.saveEdit.bind(this)}
+        activeNode={this.props.activeNode}
+        setActiveNode={this.props.setActiveNode.bind(this)}
         cancelEdit={this.cancelEdit.bind(this)} 
         setPath={this.props.setPath}
         newChild={this.props.newChild}
