@@ -24,47 +24,50 @@ const l1 = {
   }
   let environment = {
     rootPath: ['0', '1', '5'],
-    // rel: 'children',
+    rel: 'child',
     homeNode: ['0'],
   }
   let settings = {}
 
 
+describe('rendering children properly', ()=>{
 
-it('shows children if expanded', () => {
-    let props : Types.ChkFlowProps = {
-        environment: environment,
-        settings: settings,
-        nodes: l1,
-    }
-    render(<ChkFlow {...props} />)
-    let elem = null;
-    if (screen){
-        let elem1 = screen.getByText(/blah5/i);
-        let elem2 = elem1.closest('.node-container')
-        console.log('parent elem',elem1)
-        if (elem2){
-            elem = elem2.querySelector(".node-children")
+    it('shows children if expanded', () => {
+        let props : Types.ChkFlowProps = {
+            environment: environment,
+            settings: settings,
+            nodes: l1,
         }
-    }
-    expect(elem).toHaveTextContent(/blah6/i)
-    expect(elem).toHaveTextContent(/blah7/i)
+        render(<ChkFlow {...props} />)
+        let elem = null;
+        if (screen){
+            let elem1 = screen.getByText(/blah5/i);
+            let elem2 = elem1.closest('.node-container')
+            if (elem2){
+                elem = elem2.querySelector(".node-children")
+            }
+        }
+        expect(elem).toHaveTextContent(/blah6/i)
+        expect(elem).toHaveTextContent(/blah7/i)
 
-});
+    });
 
-it('shows children if expanded', () => {
-    let props : Types.ChkFlowProps = {
-        environment: environment,
-        settings: settings,
-        nodes: l2,
-    }
-    render(<ChkFlow {...props} />)
-    let elem = null;
-    if (screen){
-        let elem1 = screen.getByText(/blah5/i);
-        elem = elem1.closest('.node-container')
-    }
-    expect(elem).not.toHaveTextContent(/blah6/i)
-    expect(elem).not.toHaveTextContent(/blah7/i)
+    it('does not show children if not expanded', () => {
+        let props : Types.ChkFlowProps = {
+            environment: environment,
+            settings: settings,
+            nodes: l2,
+        }
+        render(<ChkFlow {...props} />)
+        let elem = null;
+        if (screen){
+            let elem1 = screen.getByText(/blah5/i);
+            elem = elem1.closest('.node-container')
+        }
+        expect(elem).not.toHaveTextContent(/blah6/i)
+        expect(elem).not.toHaveTextContent(/blah7/i)
 
-});
+    })
+
+
+})

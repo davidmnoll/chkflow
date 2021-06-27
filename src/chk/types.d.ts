@@ -29,7 +29,7 @@ type ChkFlowState = any
 type NodeId = string 
 
 type ChkFlowNodes<T extends BaseNodeInfo> = {
-    [nodeId:NodeId]: T
+    [nodeId:string]: T
 }
 
 
@@ -60,6 +60,8 @@ interface TreeNodeProps<T extends BaseNodeInfo> {
     moveChildFromPath: (path:NodeId[], newParent: NodeId) => void;
     moveUnderPreviousNode: (path:NodeId[]) => void;
     newChildUnderThisNode: (path:NodeId[]) => void;
+    moveCursorToVisuallyNextNode: (path:NodeId[]) => void
+    moveCursorToVisuallyPreviousNode: (path:NodeId[]) => void
 }
 // interface TreeNodeState<T extends BaseNodeInfo> {
 
@@ -105,6 +107,7 @@ export {
     ChkFlowProps,
     ChkFlowBaseProps,
     ChkFlowState,
+    ChkFlowNodes,
     TreeNodeProps,
     TreeNodeState,
     TreeNodeComponent,

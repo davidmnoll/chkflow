@@ -4,6 +4,8 @@ import * as Types from './types'
 import Header from './Header'
 import TreeNode from './TreeNode'
 import * as R from 'ramda'
+import { placeCursorFromBeginning, getNodeTailFromPath } from './UiUtils'
+import { getNewId, getVisuallyPreviousNodePath, getVisuallyNextNodePath } from './NodeUtils'
 
 //Todo: make generic & use generics for storing info etc.
 class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowState> { 
@@ -92,21 +94,7 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
   }
 
   getNewId():Types.NodeId{
-    function makeid(length:number) {
-      var result           = [];
-      var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-      var charactersLength = characters.length;
-      for ( var i = 0; i < length; i++ ) {
-        result.push(characters.charAt(Math.floor(Math.random() * charactersLength)));
-      }
-      return result.join('');
-    }
-    let key = makeid(5);
-    const keywords = ["child", "home", "root", "rel"]
-    while( this.state.nodes[key] !== undefined || keywords.includes(key) ){
-      let key = makeid(5);
-    }
-    return key
+    return getNewId(this.state);
   }
 
   setNodeRel(baseId: Types.NodeId, relId: Types.NodeId, subId: Types.NodeId ){
@@ -182,6 +170,26 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
     }
     
   }
+
+  moveCursorToNodeFromBeginning(path: Types.NodeId[], offset:number = 0){
+    let element = getNodeTailFromPath(path);
+    placeCursorFromBeginning(element);
+  }
+
+  moveCursorToVisuallyPreviousNode(path: Types.NodeId[]){
+    // console.log('prev Node', path)
+    const previousNode = getVisuallyPreviousNodePath(this.state, path);
+    console.log(previousNode);
+    this.moveCursorToNodeFromBeginning(previousNode as string[])
+  }
+
+  moveCursorToVisuallyNextNode(path: Types.NodeId[]){
+    // console.log('next Node', path)
+    const nextNode = getVisuallyNextNodePath(this.state, path);
+    // console.log('next Node', nextNode)
+    this.moveCursorToNodeFromBeginning(nextNode as string[])
+  }
+  
   newChildUnderThisNode(path: Types.NodeId[]){
     const thisNodeRelation = this.getRelation(path)
     const thisNodeIndex = this.state.nodes[path[path.length - 2]].rel[thisNodeRelation].indexOf(path[path.length - 1])
@@ -200,7 +208,14 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
           }
         }
       }
+    }, () => {
+      let newNode = document.getElementById(newSubId)?.querySelector('.node-tail');
+      // console.log('newNode', newSubId,newNode);
+      if (newNode){
+        placeCursorFromBeginning(newNode as HTMLDivElement);
+      }
     })
+
   }
 
 
@@ -231,8 +246,7 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
     const relations = this.getSubRelations(id)
     const hasRelations = (Object.keys(relations).length > 0);
     // console.log('total rels', relations, id, this.state.nodes[id], (Object.keys(relations).length > 0) && true)
-    return (hasRelations) ?  
-      (<TreeNode
+    return  (<TreeNode
         key={id}
         relation={rel}
         nodePath={[...this.state.environment.rootPath, id]} 
@@ -246,30 +260,16 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
         moveChildFromPath={this.moveChildFromPath.bind(this)}
         moveUnderPreviousNode={this.moveUnderPreviousNode.bind(this)}
         newChildUnderThisNode={this.newChildUnderThisNode.bind(this)}
+        moveCursorToVisuallyNextNode={this.moveCursorToVisuallyNextNode.bind(this)}
+        moveCursorToVisuallyPreviousNode={this.moveCursorToVisuallyPreviousNode.bind(this)}
         updateNode={this.updateNode.bind(this)}>
-        {Object.keys(this.state.nodes[id].rel).map((childRel: Types.NodeId, index: number) => (
+        {(hasRelations) ? Object.keys(this.state.nodes[id].rel).map((childRel: Types.NodeId, index: number) => (
           that.state.nodes[id].rel[childRel].map((childId: Types.NodeId, index: number)=>{
             return that.getComponentTree(childId, childRel)
           })
-        ))}
+        )) : ''}
       </TreeNode>)
-      : 
-      (<TreeNode
-        key={id} 
-        relation={rel}
-        nodePath={[...this.state.environment.rootPath, id]} 
-        nodeInfo={this.getNodeInfo(id)} 
-        settings={this.state.settings} 
-        render={this.state.settings.treeNodeComponent}
-        getRelation={this.getRelation.bind(this)}
-        setRelation={this.setRelation.bind(this)}
-        newChild={this.newChild.bind(this)}
-        moveChildFromPath={this.moveChildFromPath.bind(this)}
-        moveUnderPreviousNode={this.moveUnderPreviousNode.bind(this)}
-        newChildUnderThisNode={this.newChildUnderThisNode.bind(this)}
-        updateNode={this.updateNode.bind(this)} 
-        setPath={this.setPath.bind(this)}
-        />)
+ 
       
 }
 
