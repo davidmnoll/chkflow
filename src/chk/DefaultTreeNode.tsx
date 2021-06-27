@@ -11,6 +11,7 @@ const DefaultTreeNode: React.FC<Types.DefaultTreeNodeProps>  = function(props){
 
   // console.log('activeComp',props.activeNode, props.nodePath, (R.equals(props.activeNode, props.nodePath)))
   const hasChildren = !(props.isCollapsed || !props.children || !(props.children.length > 0))
+  // console.log('active? ', props.activeNode, props.nodePath, R.equals(props.activeNode, props.nodePath))
   return (
     <div className="node-container" id={props.nodePath[props.nodePath.length - 1]}>
       <div 

@@ -52,7 +52,7 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
   }
 
   newSubUsingKey(key: Types.NodeId, path: Types.NodeId[], relation: Types.NodeId): any {
-    const defaults = { text: key, rel: {}, isCollapsed: false  }
+    const defaults = { text: key, rel: {'child':[]}, isCollapsed: false  }
     let newState = setNodeRel(this.state, path[path.length - 1], relation, key)
     this.setState({...newState, 
       nodes: {...newState.nodes, 
@@ -91,18 +91,18 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
   }
 
   moveCursorToVisuallyPreviousNode(path: Types.NodeId[]){
-    // console.log('prev Node', path)
+    // console.log('move to prev', path)
     const previousNode = getVisuallyPreviousNodePath(this.state, path);
-    // console.log(previousNode);
+    // console.log('prev',previousNode);
     if (previousNode){
       this.moveCursorToNodeFromBeginning(previousNode)
     }
   }
 
   moveCursorToVisuallyNextNode(path: Types.NodeId[]){
-    // console.log('next Node', path)
+    // console.log('move to next', path)
     const nextNode = getVisuallyNextNodePath(this.state, path);
-    // console.log('next Node', nextNode)
+    // console.log('next', nextNode)
     if (nextNode){
       this.moveCursorToNodeFromBeginning(nextNode)
     }
@@ -116,7 +116,22 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
     })
   }
 
-  getComponentTree(id: Types.NodeId, rel: Types.NodeId) {
+  toggleCollapse(path: Types.NodeId[]){
+    let node = R.last(path) as string;
+    console.log('node', node, path)
+    if (node){
+      console.log('node', this.state.nodes[node])
+      this.setState({...this.state,
+        nodes: {...this.state.nodes, 
+          [node]: {...this.state.nodes[node],
+            isCollapsed: !this.state.nodes[node].isCollapsed
+          }
+        }
+      }, ()=>console.log(this.state))  
+    }
+  }
+
+  getComponentTree(id: Types.NodeId, rel: Types.NodeId, path: Types.NodeId[]) {
     var that = this;
     const relations = getSubRelations(this.state, id)
     const hasRelations = (Object.keys(relations).length > 0);
@@ -124,7 +139,7 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
     return  (<TreeNode
         key={id}
         relation={rel}
-        nodePath={[...this.state.environment.rootPath, id]} 
+        nodePath={[...path, id]} 
         nodeInfo={this.getNodeInfo(id)} 
         settings={this.state.settings} 
         render={this.state.settings.treeNodeComponent}
@@ -133,6 +148,7 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
         setRelation={this.setRelation.bind(this)}
         newChild={this.newChild.bind(this)}
         activeNode={this.state.environment.activeNode}
+        toggleCollapse={this.toggleCollapse.bind(this)}
         setActiveNode={this.setActiveNode.bind(this)}
         moveChildFromPath={this.moveChildFromPath.bind(this)}
         moveUnderPreviousNode={this.moveUnderPreviousNode.bind(this)}
@@ -142,7 +158,7 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
         updateNode={this.updateNode.bind(this)}>
         {(hasRelations) ? Object.keys(this.state.nodes[id].rel).map((childRel: Types.NodeId, index: number) => (
           that.state.nodes[id].rel[childRel].map((childId: Types.NodeId, index: number)=>{
-            return that.getComponentTree(childId, childRel)
+            return that.getComponentTree(childId, childRel, [...path, id])
           })
         )) : ''}
       </TreeNode>)
@@ -163,7 +179,7 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
           homeNode={this.state.environment.homeNode}
         />
         <div className="nodes-container">
-          {this.getComponentTree(this.state.environment.rootPath[this.state.environment.rootPath.length - 1], 'root')}
+          {this.getComponentTree(this.state.environment.rootPath[this.state.environment.rootPath.length - 1], 'root', this.state.environment.rootPath.slice(0, -1))}
         </div>
       </div>
     )

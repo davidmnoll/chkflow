@@ -58,7 +58,7 @@ function newSubWithoutRelUsingKey(state: Types.ChkFlowState, key: Types.NodeId):
 }
 
 function newSubUsingKey(state:Types.ChkFlowState, key: Types.NodeId, path: Types.NodeId[], relation: Types.NodeId): any {
-    const defaults = { text: key, rel: {}, isCollapsed: false  }
+    const defaults = { text: key, rel: {'child':[]}, isCollapsed: false  }
     let newState = setNodeRel(state, path[path.length - 1], relation, key)
     return {...newState, 
       nodes: {...newState.nodes, 
@@ -192,21 +192,69 @@ function getSubs(state: Types.ChkFlowState, nodeId: Types.NodeId){
     return state.nodes[nodeId].rel[state.environment.rel]
 }
 
+function getLastLastDescendent(state: Types.ChkFlowState, path:Types.NodeId[]):Types.NodeId[]{
+  if(path.length < 1){
+    return path
+  }else{
+    let curr = R.last(path) as string
+    let children = state.nodes[curr].rel[state.environment.rel]
+    if (children.length > 0){
+      let lastChild = R.last(children)
+      return getLastLastDescendent(state, [...path, lastChild])  
+    }else{
+      return path
+    }
+  }
+}
+
+function getLastLastVisibleDescendent(state: Types.ChkFlowState, path:Types.NodeId[]):Types.NodeId[]{
+  if(path.length < 1){
+    return path
+  }else{
+    let curr = R.last(path) as string
+    let children = state.nodes[curr].rel[state.environment.rel]
+    if (children.length > 0 && !isCollapsed(state, path)){
+      let lastChild = R.last(children)
+      return getLastLastVisibleDescendent(state, [...path, lastChild])  
+    }else{
+      return path
+    }
+  }
+}
+
+function isCollapsed(state: Types.ChkFlowState, path: Types.NodeId[]): boolean {
+  let node = R.last(path) as string;
+  if(node){
+    console.log('state.nodes[node]',state.nodes[node])
+    return state.nodes[node].isCollapsed;
+  }else{
+    throw new Error("bad path");
+  }
+}
+
 function getVisuallyNextNodePath(state: Types.ChkFlowState, path: Types.NodeId[]){
-    // console.log('params',state, path)
+    console.log('params - next',state, path)
 
     let returnPath = [...path]
 
     let lastWorkingNode;
     let currentWorkingNode = returnPath.pop() as Types.NodeId;
     let currentSubs = getSubs(state, currentWorkingNode)
-    if (currentSubs.length > 0){
+    console.log('subs', currentSubs, currentWorkingNode, isCollapsed(state, path))
+    if (currentSubs.length > 0 && !isCollapsed(state, path)){
         return throwIfPathIsInvisible(state, [...returnPath, currentWorkingNode, currentSubs[0]])
     }else{
         while (returnPath.length > 0){
             lastWorkingNode = currentWorkingNode;
+            console.log(returnPath)
             currentWorkingNode = returnPath.pop() as Types.NodeId;
             currentSubs = getSubs(state, currentWorkingNode);
+            console.log('subs', 
+              currentSubs, 
+              currentWorkingNode, 
+              currentSubs.indexOf(lastWorkingNode), 
+              currentSubs.length - 1, 
+              currentSubs.indexOf(lastWorkingNode) < (currentSubs.length - 1) )
             if (currentSubs.indexOf(lastWorkingNode) < (currentSubs.length - 1)){
                 let nextNodeDown = currentSubs[currentSubs.indexOf(lastWorkingNode) + 1]
                 return throwIfPathIsInvisible(state, [...returnPath, currentWorkingNode, nextNodeDown])
@@ -217,32 +265,38 @@ function getVisuallyNextNodePath(state: Types.ChkFlowState, path: Types.NodeId[]
 
 
 }
-function throwIfPathIsInvisible(state: Types.ChkFlowState, path: Types.NodeId[]){
-    let rootPath = state.environment.rootPath;
-    let rootPathRemainder = delArrayPrefix(rootPath, path);
-    // console.log('result', path)
-    if(rootPathRemainder !== null){
-        return path
-    }else{
-        return null;
-        // throw new Error("Path should match root path, or else all children are invisible")
-    }
-}
 
 function getVisuallyPreviousNodePath(state: Types.ChkFlowState, path: Types.NodeId[]){
-    let currPath = [...path]
-    let currWorkingNode = currPath.pop();
-    let currSibs = state.nodes[R.last(currPath) as string].rel[state.environment.rel];
-    if (currSibs.indexOf(currWorkingNode) > 0){
-        return throwIfPathIsInvisible(state, [...currPath, currSibs[currSibs.indexOf(currWorkingNode) - 1]])
-    }
-    else{
-        return throwIfPathIsInvisible(state, currPath)
-    }
+  console.log('params - prev',state, path)
+  let currPath = [...path]
+  let currWorkingNode = currPath.pop();
+  if (!R.last(currPath)){
+    return null;
+  }
+  let currSibs = state.nodes[R.last(currPath) as string].rel[state.environment.rel];
+  console.log('sibs', currSibs, currWorkingNode, currSibs.indexOf(currWorkingNode))
+  if (currSibs.indexOf(currWorkingNode) > 0){
+      return throwIfPathIsInvisible(state, getLastLastVisibleDescendent(state, [...currPath, currSibs[currSibs.indexOf(currWorkingNode) - 1]]))
+  }
+  else{
+      return throwIfPathIsInvisible(state, currPath)
+  }
+}
+
+function throwIfPathIsInvisible(state: Types.ChkFlowState, path: Types.NodeId[]){
+  let rootPath = state.environment.rootPath;
+  let rootPathRemainder = delArrayPrefix(rootPath, path);
+  // console.log('result', path)
+  if(rootPathRemainder !== null){
+      return path
+  }else{
+      return null;
+      // throw new Error("Path should match root path, or else all children are invisible")
+  }
 }
 
 
- function newChildUnderThisNode(state: Types.ChkFlowState, path: Types.NodeId[]){
+function newChildUnderThisNode(state: Types.ChkFlowState, path: Types.NodeId[]){
     const thisNodeRelation = getRelation(state, path)
     const thisNodeIndex = state.nodes[path[path.length - 2]].rel[thisNodeRelation].indexOf(path[path.length - 1])
     const newSubId = getNewId(state);
@@ -261,7 +315,7 @@ function getVisuallyPreviousNodePath(state: Types.ChkFlowState, path: Types.Node
         }
       }
     }]
-  }
+}
 
 
   function getSubRelations(state: Types.ChkFlowState, id: Types.NodeId){

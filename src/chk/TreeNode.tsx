@@ -18,16 +18,14 @@ class TreeNode<T extends Types.BaseNodeInfo> extends React.Component<Types.TreeN
     return {}
   }
 
-  collapse(){
-    this.setState({isCollapsed: true});
-  }
-  expand(){
-    this.setState({isCollapsed: false});
-  }
+  // collapse(){
+  //   this.setState({isCollapsed: true});
+  // }
+  // expand(){
+  //   this.setState({isCollapsed: false});
+  // }
 
-  toggle(){
-    this.state.isCollapsed ? this.expand() : this.collapse() 
-  }
+
 
   startEdit(){
     this.setState({editMode: true});
@@ -43,7 +41,7 @@ class TreeNode<T extends Types.BaseNodeInfo> extends React.Component<Types.TreeN
   
   render() {
     const TreeNodeDisplay = this.props.render as React.ElementType
-
+    // console.log('nodePath',this.props.nodePath, this.props.activeNode)
     return (
       <TreeNodeDisplay 
         getRelation={this.props.getRelation}
@@ -51,13 +49,13 @@ class TreeNode<T extends Types.BaseNodeInfo> extends React.Component<Types.TreeN
         settings={this.props.settings}
         nodeInfo={this.props.nodeInfo}
         nodePath={this.props.nodePath}
-        isCollapsed={this.state.isCollapsed}
+        isCollapsed={this.props.nodeInfo.isCollapsed}
         editMode={this.state.editMode}
         treeHead={this.props.settings.treeHeadComponent}
         treeTail={this.props.settings.treeTailComponent}
-        collapse={this.collapse.bind(this)}
-        expand={this.expand.bind(this)}
-        toggle={this.toggle.bind(this)}
+        // collapse={this.collapse.bind(this)}
+        // expand={this.expand.bind(this)}
+        toggle={this.props.toggleCollapse}
         startEdit={this.startEdit.bind(this)}
         saveEdit={this.saveEdit.bind(this)}
         activeNode={this.props.activeNode}
