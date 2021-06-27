@@ -1,6 +1,8 @@
 ## Chkflow
 
+---
 **This project is currently under development.  It is not ready for use.**
+---
 
 Chkflow is meant to be an react component editor/view for tree and graph data structures inspired by workflowy's interface.
 
