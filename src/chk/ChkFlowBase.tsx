@@ -179,15 +179,19 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
   moveCursorToVisuallyPreviousNode(path: Types.NodeId[]){
     // console.log('prev Node', path)
     const previousNode = getVisuallyPreviousNodePath(this.state, path);
-    console.log(previousNode);
-    this.moveCursorToNodeFromBeginning(previousNode as string[])
+    // console.log(previousNode);
+    if (previousNode){
+      this.moveCursorToNodeFromBeginning(previousNode)
+    }
   }
 
   moveCursorToVisuallyNextNode(path: Types.NodeId[]){
     // console.log('next Node', path)
     const nextNode = getVisuallyNextNodePath(this.state, path);
     // console.log('next Node', nextNode)
-    this.moveCursorToNodeFromBeginning(nextNode as string[])
+    if (nextNode){
+      this.moveCursorToNodeFromBeginning(nextNode)
+    }
   }
   
   newChildUnderThisNode(path: Types.NodeId[]){
