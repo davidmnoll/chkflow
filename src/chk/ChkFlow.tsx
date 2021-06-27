@@ -29,7 +29,7 @@ const ChkFlow: React.FC<Partial<Types.ChkFlowProps>> =  function (props: Partial
 
   let environment = {
     rootPath: ['0', '1', '5'],
-    // rel: 'children',
+    rel: 'child',
     homeNode: ['0'],
     ...props.state
   }

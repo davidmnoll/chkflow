@@ -10,7 +10,7 @@ const DefaultTreeNode: React.FC<Types.DefaultTreeNodeProps>  = function(props){
   const TreeTail = props.settings.treeTailComponent as React.ElementType
 
   return (
-    <div className="node-container">
+    <div className="node-container" id={props.nodePath[props.nodePath.length - 1]}>
       <div className="node-main">
         <TreeHead 
           isCollapsed={props.isCollapsed}
@@ -31,6 +31,8 @@ const DefaultTreeNode: React.FC<Types.DefaultTreeNodeProps>  = function(props){
           cancelEdit={props.cancelEdit} 
           getRelation={props.getRelation} 
           newChild={props.newChild} 
+          moveCursorToVisuallyNextNode={props.moveCursorToVisuallyNextNode}
+          moveCursorToVisuallyPreviousNode={props.moveCursorToVisuallyPreviousNode}
           newChildUnderThisNode={props.newChildUnderThisNode} 
           moveUnderPreviousNode={props.moveUnderPreviousNode} 
           />

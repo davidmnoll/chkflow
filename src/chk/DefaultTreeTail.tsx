@@ -3,11 +3,10 @@ import './style.scss'
 import * as Types from './types' 
 
 
-
 const DefaultTreeTailEdit: React.FC<Types.DefaultTreeTailProps> = function (props: Types.DefaultTreeTailProps) {
     let textContainer: HTMLDivElement;
     const saveEdit = () => {  props.saveEdit({text: textContainer.textContent}) }
-    console.log(props.getRelation(props.nodePath))
+    // console.log(props.getRelation(props.nodePath))
 
     function getSelectionTextInfo(el:HTMLElement) {
         var atStart = false, atEnd = false;
@@ -33,7 +32,7 @@ const DefaultTreeTailEdit: React.FC<Types.DefaultTreeTailProps> = function (prop
         return { atStart: atStart, atEnd: atEnd };
     }
 
-    const keyDownListen = (event:React.KeyboardEvent) => {
+    const keyPressListen = (event:React.KeyboardEvent) => {
         let {atStart, atEnd} = getSelectionTextInfo(textContainer)
         if (atStart){
             if (event.key === 'Tab' ){
@@ -46,18 +45,32 @@ const DefaultTreeTailEdit: React.FC<Types.DefaultTreeTailProps> = function (prop
         if (atEnd){
             if (event.key == 'Enter' ){
                 event.preventDefault()
-                console.log('newChild')
+                // console.log('newChild')
                 props.newChildUnderThisNode(props.nodePath)
             }
         }
     }
 
+    
+    const keyDownListen = (event:React.KeyboardEvent) => {
+        if (event.key == "ArrowDown" ){
+            props.moveCursorToVisuallyNextNode(props.nodePath)
+        }
+        if (event.key == "ArrowUp"){
+            console.log("up")
+            props.moveCursorToVisuallyPreviousNode(props.nodePath)
+        }
 
-    return (<div 
+    }
+
+
+    return (<div
+        className="node-tail"
         contentEditable="true"  
         ref={node=>{ if(node){textContainer = node}}} 
         onBlurCapture={saveEdit}
         suppressContentEditableWarning={true}
+        onKeyPress={keyPressListen}
         onKeyDown={keyDownListen}
     >   
         {props.nodeInfo.text} 
