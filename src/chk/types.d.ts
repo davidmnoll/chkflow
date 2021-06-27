@@ -54,7 +54,7 @@ interface TreeNodeProps<T extends BaseNodeInfo> {
     relation: NodeId;
     activeNode: NodeId[];
     setActiveNode: (path:NodeId[]) => void;
-    updateNode: (id: NodeId, data: T) => void;
+    updateNode: (path: NodeId[], data: T) => void;
     setPath: (path: NodeId[]) => void;
     getRelation: (path:NodeId[]) => NodeId;
     setRelation: (path:NodeId[], rel:NodeId) => void;

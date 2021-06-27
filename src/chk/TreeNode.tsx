@@ -32,7 +32,7 @@ class TreeNode<T extends Types.BaseNodeInfo> extends React.Component<Types.TreeN
   }
   saveEdit(nodeInfo: T){
     //TODO: store node data
-    this.props.updateNode(this.state.id, nodeInfo)
+    this.props.updateNode(this.props.nodePath, nodeInfo)
     this.setState({editMode: false});
   }
   cancelEdit(){

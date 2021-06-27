@@ -34,14 +34,6 @@ const DefaultTreeTailEdit: React.FC<Types.DefaultTreeTailProps> = function (prop
 
     const keyPressListen = (event:React.KeyboardEvent) => {
         let {atStart, atEnd} = getSelectionTextInfo(textContainer)
-        if (atStart){
-            if (event.key === 'Tab' ){
-                event.preventDefault()
-                console.log('moveChild')
-                props.moveUnderPreviousNode(props.nodePath)
-                return false;
-            }
-        }
         if (atEnd){
             if (event.key == 'Enter' ){
                 event.preventDefault()
@@ -53,6 +45,16 @@ const DefaultTreeTailEdit: React.FC<Types.DefaultTreeTailProps> = function (prop
 
     
     const keyDownListen = (event:React.KeyboardEvent) => {
+        let {atStart, atEnd} = getSelectionTextInfo(textContainer)
+        if (atStart){
+            if (event.key === 'Tab' ){
+                event.preventDefault()
+                console.log('moveChild')
+                props.moveUnderPreviousNode(props.nodePath)
+                return false;
+            }
+        }
+
         if (event.key == "ArrowDown" ){
             props.moveCursorToVisuallyNextNode(props.nodePath)
         }
