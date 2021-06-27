@@ -244,6 +244,12 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
   getTotalSubRelations(id:Types.NodeId){
     return Object.keys(this.getSubRelations(id)).length
   }
+  setActiveNode(path: Types.NodeId[]){
+    console.log("activated", path)
+    this.setState({...this.state, 
+      environment: {...this.state.environment, activeNode: path }
+    })
+  }
 
   getComponentTree(id: Types.NodeId, rel: Types.NodeId) {
     var that = this;
@@ -261,6 +267,8 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
         getRelation={this.getRelation.bind(this)}
         setRelation={this.setRelation.bind(this)}
         newChild={this.newChild.bind(this)}
+        activeNode={this.state.environment.activeNode}
+        setActiveNode={this.setActiveNode.bind(this)}
         moveChildFromPath={this.moveChildFromPath.bind(this)}
         moveUnderPreviousNode={this.moveUnderPreviousNode.bind(this)}
         newChildUnderThisNode={this.newChildUnderThisNode.bind(this)}

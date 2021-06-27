@@ -52,6 +52,8 @@ interface TreeNodeProps<T extends BaseNodeInfo> {
     settings: ChkFlowSettings;
     render: TreeNodeComponent;
     relation: NodeId;
+    activeNode: NodeId[];
+    setActiveNode: (path:NodeId[]) => void;
     updateNode: (id: NodeId, data: T) => void;
     setPath: (path: NodeId[]) => void;
     getRelation: (path:NodeId[]) => NodeId;
