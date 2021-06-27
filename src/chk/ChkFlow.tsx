@@ -14,9 +14,9 @@ import DefaultTreeTail from './DefaultTreeTail'
  * using defaults as necessary
  */
 
-const ChkFlow: React.FC<Partial<Types.ChkFlowProps>> =  function (props: Partial<Types.ChkFlowProps>) {
 
-  const l1 = {
+ function setDummyData(){
+  const nodes = {
     '0' : { text: 'blah0', rel: {'child': ['1','3']}, isCollapsed: false },
     '1' : { text: 'blah1', rel: {'child': ['5', '2']}, isCollapsed: false  },
     '2' : { text: 'blah2', rel: {'child': ['4']}, isCollapsed: false  },
@@ -26,13 +26,27 @@ const ChkFlow: React.FC<Partial<Types.ChkFlowProps>> =  function (props: Partial
     '6' : { text: 'blah6', rel: {'child': []}, isCollapsed: false  },
     '7' : { text: 'blah7', rel: {'child': []}, isCollapsed: false  },
   }
-
-  let environment = {
+  const environment = {
     rootPath: ['0', '1', '5'],
     rel: 'child',
     homeNode: ['0'],
     activeNode: [],
-    ...props.state
+  }
+  const settings = {
+
+  }
+  window.localStorage.setItem('chkFlowNodes', JSON.stringify(nodes))
+  window.localStorage.setItem('chkFlowEnvironment', JSON.stringify(environment))
+  window.localStorage.setItem('chkFlowSettings', JSON.stringify(settings))
+}
+
+const ChkFlow: React.FC<Partial<Types.ChkFlowProps>> =  function (props: Partial<Types.ChkFlowProps>) {
+
+  let environment = {
+    ...props.state,
+  }
+  let nodes = {
+    ...props.nodes
   }
 
   let settings = {
@@ -42,9 +56,27 @@ const ChkFlow: React.FC<Partial<Types.ChkFlowProps>> =  function (props: Partial
     ...props.settings
   }
 
-  let nodes = {
-    ...l1,
-    ...props.nodes
+
+  let savedNodes = window.localStorage.getItem('chkFlowNodes')
+  let savedEnv = window.localStorage.getItem('chkFlowEnvironment')
+  // let savedSettings = window.localStorage.getItem('chkFlowSettings')
+
+  if (savedNodes) {
+    console.log('retrieved nodes')
+    nodes = {
+      ...nodes,
+      ...JSON.parse(savedNodes)
+    }
+  }
+  if (savedEnv){
+    console.log('retrieved environment')
+    environment = {
+      ...environment,
+      ...JSON.parse(savedEnv)
+    }
+  }
+  if (!savedNodes && !savedEnv){
+    setDummyData()
   }
 
 

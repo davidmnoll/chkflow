@@ -139,10 +139,14 @@ function moveChildFromPath(state:Types.ChkFlowState, path: Types.NodeId[], newPa
 function moveUnderPreviousNode(state:Types.ChkFlowState, path: Types.NodeId[]){
     const thisNodeRelation = getRelation(state, path)
     const thisNodeIndex = state.nodes[path[path.length - 2]].rel[thisNodeRelation].indexOf(path[path.length - 1])
-    if (thisNodeIndex !== 0){
+    console.log('move child fn', thisNodeRelation, thisNodeIndex, path)
+    if (thisNodeIndex > 0){
       const previousNodeId = state.nodes[path[path.length - 2]].rel[thisNodeRelation][thisNodeIndex - 1]
-      moveNodeRel(state, path[path.length-2], thisNodeRelation, path[path.length-1], previousNodeId)
-    }   
+      console.log('move child fn', previousNodeId)
+      return moveNodeRel(state, path[path.length-2], thisNodeRelation, path[path.length-1], previousNodeId)
+    }else{
+      return null;
+    }
 }
 
 
@@ -297,10 +301,11 @@ function throwIfPathIsInvisible(state: Types.ChkFlowState, path: Types.NodeId[])
 
 
 function newChildUnderThisNode(state: Types.ChkFlowState, path: Types.NodeId[]){
+  // console.log('new child fn',state.nodes)
     const thisNodeRelation = getRelation(state, path)
     const thisNodeIndex = state.nodes[path[path.length - 2]].rel[thisNodeRelation].indexOf(path[path.length - 1])
     const newSubId = getNewId(state);
-    const defaults = { text: newSubId, rel: {}, isCollapsed: false  }
+    const defaults = { text: newSubId, rel: {'child':[]}, isCollapsed: false  }
     let newArr = [...state.nodes[path[path.length - 2]].rel[thisNodeRelation]]
     newArr.splice(thisNodeIndex + 1, 0, newSubId)
     return [ newSubId, {...state,

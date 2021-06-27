@@ -28,6 +28,17 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
     this.state = {...this.state, environment: props.environment, nodes: props.nodes, settings: props.settings }
   }  
 
+  setStateAndSave(state: Types.ChkFlowState, callback: Function | null =null){
+    this.setState(state, ()=>{
+      window.localStorage.setItem('chkFlowEnvironment', JSON.stringify(this.state.environment));
+      window.localStorage.setItem('chkFlowNodes', JSON.stringify(this.state.nodes));
+      // window.localStorage.setItem('chkFlowSettings', JSON.stringify(this.state.settings));
+      if(callback !== null){
+        callback();
+      }
+    })
+  }
+
   getNodeInfo(id: Types.NodeId): any {
     return this.state.nodes[id]
   }
@@ -35,26 +46,30 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
     return getRelation(this.state, path)
   }
 
-  updateNode(id: Types.NodeId, data: any ){
-    this.setState({...this.state, nodes: {...this.state.nodes, [id]: { ...this.state.nodes[id], ...data } }})
+  updateNode(path: Types.NodeId[], data: any ){
+    console.log('updateNode',data);
+    let currNode = R.last(path);
+    if (currNode){
+      this.setStateAndSave({...this.state, nodes: {...this.state.nodes, [currNode]: { ...this.state.nodes[currNode], ...data } }})  
+    }
   }
   
   newChild(path: Types.NodeId[]){
-    this.setState(newChild(this.state, path))
+    this.setStateAndSave(newChild(this.state, path))
   }
 
   setRootPath(path: Types.NodeId[]){
-    this.setState({...this.state, environment: {...this.state.environment, rootPath: path }})
+    this.setStateAndSave({...this.state, environment: {...this.state.environment, rootPath: path }})
   }
 
   setRelation(path: Types.NodeId[], relation: Types.NodeId){
-    this.setState(setRelation(this.state, path, relation))
+    this.setStateAndSave(setRelation(this.state, path, relation))
   }
 
   newSubUsingKey(key: Types.NodeId, path: Types.NodeId[], relation: Types.NodeId): any {
     const defaults = { text: key, rel: {'child':[]}, isCollapsed: false  }
     let newState = setNodeRel(this.state, path[path.length - 1], relation, key)
-    this.setState({...newState, 
+    this.setStateAndSave({...newState, 
       nodes: {...newState.nodes, 
         [key]: defaults, 
       }
@@ -62,27 +77,33 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
   }
 
   moveChildFromPath(path: Types.NodeId[], newParent: Types.NodeId){
-    this.setState(moveChildFromPath(this.state,path, newParent ))
+    this.setStateAndSave(moveChildFromPath(this.state,path, newParent ))
   }
 
   moveUnderPreviousNode(path: Types.NodeId[]){
-    this.setState(moveUnderPreviousNode(this.state, path))
+    let moveState = moveUnderPreviousNode(this.state, path)
+    if (moveState){
+      this.setStateAndSave(moveState)
+    }
   }
 
 
   newChildUnderThisNode(path: Types.NodeId[]){
+    // console.log('start state',this.state.nodes)
     let [id, newState] = newChildUnderThisNode(this.state, path)
-    this.setState( newState, () => {
+    // console.log('newState',newState.nodes)
+    this.setStateAndSave( newState, () => {
       let newNode = document.getElementById(id)?.querySelector('.node-tail');
-      // console.log('newNode', newSubId,newNode);
+      // console.log('newStateNow', this.state.nodes);
       if (newNode){
         placeCursorFromBeginning(newNode as HTMLDivElement);
       }
     })
+  
   }
 
   newSubWithoutRelUsingKey(key: Types.NodeId){
-    this.setState(newSubWithoutRelUsingKey(this.state, key))
+    this.setStateAndSave(newSubWithoutRelUsingKey(this.state, key))
   }
 
   moveCursorToNodeFromBeginning(path: Types.NodeId[], offset:number = 0){
@@ -111,7 +132,7 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
 
   setActiveNode(path: Types.NodeId[]){
     // console.log("activated", path)
-    this.setState({...this.state, 
+    this.setStateAndSave({...this.state, 
       environment: {...this.state.environment, activeNode: path }
     })
   }
@@ -121,7 +142,7 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
     console.log('node', node, path)
     if (node){
       console.log('node', this.state.nodes[node])
-      this.setState({...this.state,
+      this.setStateAndSave({...this.state,
         nodes: {...this.state.nodes, 
           [node]: {...this.state.nodes[node],
             isCollapsed: !this.state.nodes[node].isCollapsed
