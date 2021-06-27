@@ -73,7 +73,7 @@ describe('properly runs node utilies & operations', ()=>{
         
     })
 
-    it.skip('gets previous node from path', () => {
+    it('gets previous node from path', () => {
         let environment = {
             rootPath: ['0', '1', '5'],
             rel: 'child',
