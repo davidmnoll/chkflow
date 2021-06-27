@@ -5,6 +5,147 @@ import { exception } from 'console';
 import { stat } from 'fs';
 
 
+
+function getRelation(state: Types.ChkFlowState, path: Types.NodeId[]){
+    var rel: Types.NodeId = 'child';
+    if (path.length == 1){
+      rel = "root";
+    }else{
+      Object.keys(state.nodes[path[path.length-2]].rel).forEach((relType:Types.NodeId, index:number)=>{
+        if (state.nodes[path[path.length-2]][relType] == state.nodes[path[path.length-1]]){
+          rel = relType;
+        }
+      })
+    }
+    return rel;
+}
+function setRelation(state: Types.ChkFlowState, path: Types.NodeId[], relation: Types.NodeId){
+    return {...state, 
+      nodes: {
+        ...state.nodes, 
+        [path[path.length-2]]: {
+          ...state.nodes[path[path.length-2]], 
+          rel: {
+            [relation]: [...state.nodes[path[path.length-2]].rel[relation] , path[path.length-1]] 
+          }
+        }
+      }
+    }
+  }
+function newChild(state: Types.ChkFlowState, path: Types.NodeId[]){
+    return newSub(state, path, 'child')
+}
+
+function newSub(state: Types.ChkFlowState, path: Types.NodeId[], relation: Types.NodeId): any {
+    const key = getNewId(state)
+    return newSubUsingKey(state, key, path, relation)
+
+}
+
+function newSubWithoutRel(state: Types.ChkFlowState): any {
+    const key = getNewId(state)
+    newSubWithoutRelUsingKey(state, key)
+    return key
+}
+
+function newSubWithoutRelUsingKey(state: Types.ChkFlowState, key: Types.NodeId): any {
+    const defaults = { text: key, rel: {}, isCollapsed: false  }
+    return {...state, 
+      nodes: {...state.nodes, 
+        [key]: defaults, 
+      }
+    }
+}
+
+function newSubUsingKey(state:Types.ChkFlowState, key: Types.NodeId, path: Types.NodeId[], relation: Types.NodeId): any {
+    const defaults = { text: key, rel: {}, isCollapsed: false  }
+    let newState = setNodeRel(state, path[path.length - 1], relation, key)
+    return {...newState, 
+      nodes: {...newState.nodes, 
+        [key]: defaults, 
+      }
+    }
+}
+
+function  getSubDefaults(){
+    
+}
+
+
+function setNodeRel(state:Types.ChkFlowState, baseId: Types.NodeId, relId: Types.NodeId, subId: Types.NodeId ){
+    const newRels = [...state.nodes[baseId].rel[relId], subId]
+    return {...state, 
+      nodes: {
+        ...state.nodes, 
+        [baseId]: {
+          ...state.nodes[baseId], 
+          rel: {
+            ...state.nodes[baseId].rel, 
+            [relId]: newRels 
+          } 
+        } 
+      }
+    }
+}
+
+function delNodeRel(state:Types.ChkFlowState, baseId: Types.NodeId, relId: Types.NodeId, subId: Types.NodeId ){
+    return {...state, 
+      nodes: {
+        ...state.nodes, 
+        [baseId]: {
+          ...state.nodes[baseId], 
+          rel: {
+            ...state.nodes[baseId].rel, 
+            [relId]: [...state.nodes[baseId].rel[relId].filter((key:Types.NodeId)=> key != subId)] 
+          } 
+        } 
+      }
+    }
+}
+
+function moveNodeRel(state:Types.ChkFlowState, oldBaseId: Types.NodeId, relId: Types.NodeId, subId: Types.NodeId, newBaseId: Types.NodeId){
+    return {...state, 
+      nodes: {
+        ...state.nodes, 
+        [oldBaseId]: {
+          ...state.nodes[oldBaseId], 
+          rel: {
+            ...state.nodes[oldBaseId].rel, 
+            [relId]: [...state.nodes[oldBaseId].rel[relId].filter((key:Types.NodeId)=> key != subId)] 
+          } 
+        },
+        [newBaseId]: {
+          ...state.nodes[newBaseId], 
+          rel: {
+            ...state.nodes[newBaseId].rel, 
+            [relId]: [...state.nodes[newBaseId].rel[relId], subId] 
+          } 
+        },
+      }
+    }
+}
+
+function setNodeChild(state:Types.ChkFlowState, baseId: Types.NodeId, subId: Types.NodeId){
+    setNodeRel(state, baseId, 'child', subId)
+}
+function delNodeChild(state:Types.ChkFlowState, baseId: Types.NodeId, subId: Types.NodeId){
+    delNodeRel(state, baseId, 'child', subId)
+}
+function moveChildFromPath(state:Types.ChkFlowState, path: Types.NodeId[], newParent: Types.NodeId){
+    setNodeChild(state, newParent, path[path.length - 1] )
+    delNodeChild(state, path[path.length - 2], path[path.length - 1] )
+}
+
+function moveUnderPreviousNode(state:Types.ChkFlowState, path: Types.NodeId[]){
+    const thisNodeRelation = getRelation(state, path)
+    const thisNodeIndex = state.nodes[path[path.length - 2]].rel[thisNodeRelation].indexOf(path[path.length - 1])
+    if (thisNodeIndex !== 0){
+      const previousNodeId = state.nodes[path[path.length - 2]].rel[thisNodeRelation][thisNodeIndex - 1]
+      moveNodeRel(state, path[path.length-2], thisNodeRelation, path[path.length-1], previousNodeId)
+    }   
+}
+
+
 function buildChildSubtree(nodes: any, node:any){
     return buildSubtree(nodes, node, 'child');
 }
@@ -97,7 +238,49 @@ function getVisuallyPreviousNodePath(state: Types.ChkFlowState, path: Types.Node
 }
 
 
+ function newChildUnderThisNode(state: Types.ChkFlowState, path: Types.NodeId[]){
+    const thisNodeRelation = getRelation(state, path)
+    const thisNodeIndex = state.nodes[path[path.length - 2]].rel[thisNodeRelation].indexOf(path[path.length - 1])
+    const newSubId = getNewId(state);
+    const defaults = { text: newSubId, rel: {}, isCollapsed: false  }
+    let newArr = [...state.nodes[path[path.length - 2]].rel[thisNodeRelation]]
+    newArr.splice(thisNodeIndex + 1, 0, newSubId)
+    return [ newSubId, {...state,
+      nodes: {...state.nodes,
+        [newSubId]: defaults,
+        [path[path.length - 2]]: {
+          ...state.nodes[path[path.length - 2]],
+          rel: {
+            ...state.nodes[path[path.length - 2]].rel,
+            [thisNodeRelation] : newArr
+          }
+        }
+      }
+    }]
+  }
 
+
+  function getSubRelations(state: Types.ChkFlowState, id: Types.NodeId){
+    let newState = {...state};
+    let rels : {[key:string]: Types.NodeId} = {};
+    if (state.nodes[id] === undefined ){
+      console.error('id', id);
+      console.error('state', state)
+      throw('node DNE')
+    }
+    // console.log('this node rels',id, that.state.nodes[id], this.state.nodes);
+    Object.keys(state.nodes[id].rel).forEach((currentRel: Types.NodeId) => {
+      // console.log('rels for this type',that.state.nodes[id].rel[currentRel])
+      newState.nodes[id].rel[currentRel].forEach((currentNode: Types.NodeId)=>{
+        rels[currentNode] = currentRel;
+      })
+    });
+    // console.log('result',rels)
+    return rels;
+  }
+  function getTotalSubRelations(state: Types.ChkFlowState, id:Types.NodeId){
+    return Object.keys(getSubRelations(state, id)).length
+  }
 
 
 
@@ -128,4 +311,13 @@ export {
     buildSubtree,
     buildChildSubtree,
     delArrayPrefix,
+    newChildUnderThisNode,
+    setRelation,
+    getRelation,
+    newChild,
+    getSubRelations,
+    newSubWithoutRelUsingKey,
+    moveUnderPreviousNode,
+    moveChildFromPath,
+    setNodeRel
 }

@@ -9,7 +9,7 @@ const DefaultTreeNode: React.FC<Types.DefaultTreeNodeProps>  = function(props){
   const TreeHead = props.settings.treeHeadComponent as React.ElementType
   const TreeTail = props.settings.treeTailComponent as React.ElementType
 
-  console.log('activeComp',props.activeNode, props.nodePath, (R.equals(props.activeNode, props.nodePath)))
+  // console.log('activeComp',props.activeNode, props.nodePath, (R.equals(props.activeNode, props.nodePath)))
   const hasChildren = !(props.isCollapsed || !props.children || !(props.children.length > 0))
   return (
     <div className="node-container" id={props.nodePath[props.nodePath.length - 1]}>
