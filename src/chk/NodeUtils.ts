@@ -174,9 +174,13 @@ function delArrayPrefix(a1original: any[], a2original: any[]){
         elem2 = a2.shift();
     }
     if (elem2 !== undefined){
-        return [elem2, ...a2];
+      return [elem2, ...a2];
     }else{
+      if (elem1 == undefined){
         return [];
+      }else{
+        return null;
+      }
     }
 }
 

@@ -39,6 +39,10 @@ describe('properly runs node utilies & operations', ()=>{
         a2 = [1,2,4]
         // console.log('delArrayPre',a1, a2, delArrayPrefix(a1,a2))
         expect(delArrayPrefix(a1,a2)).toEqual(null)
+        a1 = [1,2,3]
+        a2 = [1,2]
+        // console.log('delArrayPre',a1, a2, delArrayPrefix(a1,a2))
+        expect(delArrayPrefix(a1,a2)).toEqual(null)
 
     })
 
@@ -84,9 +88,9 @@ describe('properly runs node utilies & operations', ()=>{
             settings: settings,
             nodes: l1,
         }
-        expect(getVisuallyPreviousNodePath(props, ["0","1","5"])).toEqual(["0","1","5","6"])
-        expect(getVisuallyPreviousNodePath(props, ["0","1","5","6"])).toEqual(["0","1","5","7"])
-        expect(getVisuallyPreviousNodePath(props, ["0","1","5","7"])).toEqual(null)
+        expect(getVisuallyPreviousNodePath(props, ["0","1","5"])).toEqual(null)
+        expect(getVisuallyPreviousNodePath(props, ["0","1","5","6"])).toEqual(["0","1","5"])
+        expect(getVisuallyPreviousNodePath(props, ["0","1","5","7"])).toEqual(["0","1","5","6"])
         environment = {
             rootPath: ['0', '1'],
             rel: 'child',
@@ -97,7 +101,7 @@ describe('properly runs node utilies & operations', ()=>{
             settings: settings,
             nodes: l1,
         }
-        expect(getVisuallyPreviousNodePath(props, ["0","1"])).toEqual(null)
+        expect(getVisuallyPreviousNodePath(props, ["0","1", "5"])).toEqual(["0","1"])
         expect(getVisuallyPreviousNodePath(props, ["0","1","5","6"])).toEqual(["0","1","5",])
         expect(getVisuallyPreviousNodePath(props, ["0","1","5","7"])).toEqual(["0","1","5","6"])
         
