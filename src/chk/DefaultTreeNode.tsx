@@ -1,7 +1,6 @@
 
 import React from 'react'
 import * as Types from './types' 
-import TreeNode from './TreeNode'
 import * as R from 'ramda'
 
 const DefaultTreeNode: React.FC<Types.DefaultTreeNodeProps>  = function(props){ 
@@ -21,7 +20,7 @@ const DefaultTreeNode: React.FC<Types.DefaultTreeNodeProps>  = function(props){
         <TreeHead 
           isCollapsed={props.isCollapsed}
           collapse={props.collapse} 
-          toggle={props.toggle} 
+          toggle={props.toggleCollapse} 
           setPath={props.setPath} 
           nodeInfo={props.nodeInfo} 
           nodePath={props.nodePath}
