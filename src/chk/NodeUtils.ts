@@ -6,6 +6,23 @@ import { stat } from 'fs';
 
 
 
+function getRootPaths(state: Types.ChkFlowState):[Types.NodeId][]{
+  let allIds: Set<Types.NodeId> = new Set()
+  let childIds: Set<Types.NodeId> = new Set()
+  Object.keys(state.nodes).forEach((key:Types.NodeId, index:number)=>{
+    let node = state.nodes[key];
+    allIds.add(key)
+    Object.keys(node.rel).forEach((relType:string, relIndex:number)=>{
+      node.rel[relType].forEach((subNode:Types.NodeId, subIndex:number)=>{
+        childIds.add(subNode)
+      })
+    })
+  })
+  let difference = Array.from(allIds).filter(x => !childIds.has(x))
+  console.log('difference',difference, allIds, childIds)
+  return difference.map((x:Types.NodeId, index:number ): [Types.NodeId]=>{return [x]})
+}
+
 function getRelation(state: Types.ChkFlowState, path: Types.NodeId[]){
     var rel: Types.NodeId = 'child';
     if (path.length == 1){
@@ -139,14 +156,44 @@ function moveChildFromPath(state:Types.ChkFlowState, path: Types.NodeId[], newPa
 function moveUnderPreviousNode(state:Types.ChkFlowState, path: Types.NodeId[]){
     const thisNodeRelation = getRelation(state, path)
     const thisNodeIndex = state.nodes[path[path.length - 2]].rel[thisNodeRelation].indexOf(path[path.length - 1])
-    console.log('move child fn', thisNodeRelation, thisNodeIndex, path)
+    // console.log('move child fn', thisNodeRelation, thisNodeIndex, path)
     if (thisNodeIndex > 0){
       const previousNodeId = state.nodes[path[path.length - 2]].rel[thisNodeRelation][thisNodeIndex - 1]
-      console.log('move child fn', previousNodeId)
+      // console.log('move child fn', previousNodeId)
       return moveNodeRel(state, path[path.length-2], thisNodeRelation, path[path.length-1], previousNodeId)
     }else{
       return null;
     }
+}
+
+function moveUnderParent(state:Types.ChkFlowState, path:Types.NodeId[]){
+  if (path.length > 2 ){
+    let currentNode = R.last(path) as string
+    let parentNode = path[path.length - 2]
+    let grandParentNode = path[path.length - 3]
+    let uncles = state.nodes[grandParentNode].rel[state.environment.rel]
+    let parentPosition = uncles.indexOf(parentNode)
+    let newUncles = [...uncles]
+    newUncles.splice(parentPosition + 1, 0, currentNode)
+    let delState = delNodeRel(state, parentNode,state.environment.rel, currentNode)
+    // console.log('newUncles', uncles, newUncles, parentNode, parentPosition, state.nodes[grandParentNode], delState.nodes[grandParentNode])
+    // let addState = setNodeRel(delState, grandParentNode, state.environment.rel, currentNode)
+    return {
+      ...delState,
+      nodes: {
+        ...delState.nodes,
+        [grandParentNode]: {
+          ...delState.nodes[grandParentNode],
+          rel: {
+            ...delState.nodes[grandParentNode].rel,
+            [delState.environment.rel]: newUncles
+          }
+        }
+      }
+    }
+  }else{
+    return null;
+  }
 }
 
 
@@ -303,23 +350,31 @@ function throwIfPathIsInvisible(state: Types.ChkFlowState, path: Types.NodeId[])
 function newChildUnderThisNode(state: Types.ChkFlowState, path: Types.NodeId[]){
   // console.log('new child fn',state.nodes)
     const thisNodeRelation = getRelation(state, path)
-    const thisNodeIndex = state.nodes[path[path.length - 2]].rel[thisNodeRelation].indexOf(path[path.length - 1])
     const newSubId = getNewId(state);
     const defaults = { text: newSubId, rel: {'child':[]}, isCollapsed: false  }
-    let newArr = [...state.nodes[path[path.length - 2]].rel[thisNodeRelation]]
-    newArr.splice(thisNodeIndex + 1, 0, newSubId)
-    return [ newSubId, {...state,
-      nodes: {...state.nodes,
-        [newSubId]: defaults,
-        [path[path.length - 2]]: {
-          ...state.nodes[path[path.length - 2]],
-          rel: {
-            ...state.nodes[path[path.length - 2]].rel,
-            [thisNodeRelation] : newArr
+    if (path.length > 1){
+      const thisNodeIndex = state.nodes[path[path.length - 2]].rel[thisNodeRelation].indexOf(path[path.length - 1])
+      let newArr = [...state.nodes[path[path.length - 2]].rel[thisNodeRelation]]
+        newArr.splice(thisNodeIndex + 1, 0, newSubId)
+        return [ newSubId, {...state,
+          nodes: {...state.nodes,
+            [newSubId]: defaults,
+            [path[path.length - 2]]: {
+              ...state.nodes[path[path.length - 2]],
+              rel: {
+                ...state.nodes[path[path.length - 2]].rel,
+                [thisNodeRelation] : newArr
+              }
+            }
           }
-        }
+        }]
+      }else{
+        return [ newSubId, {...state,
+          nodes: {...state.nodes,
+            [newSubId]: defaults,
+          }
+        }]
       }
-    }]
 }
 
 
@@ -382,5 +437,7 @@ export {
     newSubWithoutRelUsingKey,
     moveUnderPreviousNode,
     moveChildFromPath,
-    setNodeRel
+    setNodeRel,
+    getRootPaths,
+    moveUnderParent
 }

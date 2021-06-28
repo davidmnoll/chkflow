@@ -6,7 +6,8 @@ import {
   ArrowBackIos,
   ArrowForwardIos,
   ChangeHistory,
-  Home
+  Home,
+  Cancel
   
  } from '@material-ui/icons';
 
@@ -37,18 +38,22 @@ const Header: React.FC<Types.ChkFlowProps> = (props: any) => {
   return (
     <div className="header-container">
         {/* <FontAwesomeIcon icon={faArrowAltCircleLeft} /> */}
-        <div className="back-button">
+        {/* <div className="back-button">
           <ArrowBackIos />
-        </div>
+        </div> */}
         <div className="home-node-button" onClick={goHome}>
           <Home />
         </div>
         <div className="history">
           {history}
         </div>
-        <div className="forward-button">
+        {/* <div className="forward-button">
           <ArrowForwardIos />
+        </div> */}
+        <div className="cancel-button" onClick={props.resetNodes}>
+          <Cancel />
         </div>
+
     </div>
   )
 }

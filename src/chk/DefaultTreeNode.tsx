@@ -33,6 +33,7 @@ const DefaultTreeNode: React.FC<Types.DefaultTreeNodeProps>  = function(props){
         <TreeTail
           editMode={props.editMode}
           nodePath={props.nodePath} 
+          moveUnderParent={props.moveUnderParent}
           nodeInfo={props.nodeInfo} 
           saveEdit={props.saveEdit} 
           cancelEdit={props.cancelEdit} 
