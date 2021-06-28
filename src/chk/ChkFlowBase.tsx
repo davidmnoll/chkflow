@@ -2,7 +2,6 @@ import * as React from 'react'
 import './style.scss'
 import * as Types from './types' 
 import Header from './Header'
-import TreeNode from './TreeNode'
 import * as R from 'ramda'
 import { placeCursorFromBeginning, getNodeTailFromPath } from './UiUtils'
 import { getNewId, 
@@ -190,13 +189,16 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
     var that = this;
     const relations = getSubRelations(this.state, id)
     const hasRelations = (Object.keys(relations).length > 0);
+    const nodeInfo = this.getNodeInfo(id)
+    const TreeNodeDisplay = this.state.settings.treeNodeComponent as React.ElementType
     // console.log('total rels', relations, id, this.state.nodes[id], (Object.keys(relations).length > 0) && true)
     if (renderLayer){
-      return  (<TreeNode
+      return  (<TreeNodeDisplay
         key={id}
         relation={rel}
         nodePath={[...path, id]} 
-        nodeInfo={this.getNodeInfo(id)} 
+        nodeInfo={nodeInfo}
+        isCollapsed={nodeInfo.isCollapsed} 
         settings={this.state.settings} 
         render={this.state.settings.treeNodeComponent}
         setPath={this.setRootPath.bind(this)}
@@ -218,7 +220,7 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
             return that.getComponentTree(childId, childRel, [...path, id], true)
           })
         )) : ''}
-      </TreeNode>)
+      </TreeNodeDisplay>)
     }else{
       return ((hasRelations) ? Object.keys(this.state.nodes[id].rel).map((childRel: Types.NodeId, index: number) => (
         that.state.nodes[id].rel[childRel].map((childId: Types.NodeId, index: number)=>{
