@@ -186,12 +186,13 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
     }
   }
 
-  getComponentTree(id: Types.NodeId, rel: Types.NodeId, path: Types.NodeId[]) {
+  getComponentTree(id: Types.NodeId, rel: Types.NodeId, path: Types.NodeId[], renderLayer:boolean) {
     var that = this;
     const relations = getSubRelations(this.state, id)
     const hasRelations = (Object.keys(relations).length > 0);
     // console.log('total rels', relations, id, this.state.nodes[id], (Object.keys(relations).length > 0) && true)
-    return  (<TreeNode
+    if (renderLayer){
+      return  (<TreeNode
         key={id}
         relation={rel}
         nodePath={[...path, id]} 
@@ -214,10 +215,17 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
         updateNode={this.updateNode.bind(this)}>
         {(hasRelations) ? Object.keys(this.state.nodes[id].rel).map((childRel: Types.NodeId, index: number) => (
           that.state.nodes[id].rel[childRel].map((childId: Types.NodeId, index: number)=>{
-            return that.getComponentTree(childId, childRel, [...path, id])
+            return that.getComponentTree(childId, childRel, [...path, id], true)
           })
         )) : ''}
       </TreeNode>)
+    }else{
+      return ((hasRelations) ? Object.keys(this.state.nodes[id].rel).map((childRel: Types.NodeId, index: number) => (
+        that.state.nodes[id].rel[childRel].map((childId: Types.NodeId, index: number)=>{
+          return that.getComponentTree(childId, childRel, [...path, id], true)
+        })
+      )) : '')
+    }
  
       
 }
@@ -233,10 +241,11 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
           setPath={this.setRootPath.bind(this)}
           rootPath={this.state.environment.rootPath} 
           homeNode={this.state.environment.homeNode}
+          nodes={this.state.nodes}
           resetNodes={this.resetNodes.bind(this)}
         />
         <div className="nodes-container">
-          {this.getComponentTree(this.state.environment.rootPath[this.state.environment.rootPath.length - 1], 'root', this.state.environment.rootPath.slice(0, -1))}
+          {this.getComponentTree(this.state.environment.rootPath[this.state.environment.rootPath.length - 1], 'root', this.state.environment.rootPath.slice(0, -1), false)}
         </div>
       </div>
     )

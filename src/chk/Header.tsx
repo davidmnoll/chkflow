@@ -1,6 +1,7 @@
 import * as React from 'react'
 import './style.scss'
-import * as Types from './types' 
+import * as Types from './types'
+import * as R from 'ramda'
 import { 
   ChevronRight,
   ArrowBackIos,
@@ -27,10 +28,11 @@ const Header: React.FC<Types.ChkFlowProps> = (props: any) => {
     return getHistoryList(index - 1, list)
   }
   
-  const history = props.rootPath.map((nodeId: Types.NodeId, index:number)=>{
+  const history = R.tail(props.rootPath as Array<string>).map((nodeId: Types.NodeId, index:number)=>{
 
-    const idClickFn = () => {props.setPath(getHistoryList(index, []))} 
-    return ( <div onClick={idClickFn} key={index}> <ChevronRight /> <span className="node-link">{nodeId}</span> </div>  )
+    const idClickFn = () => {props.setPath(getHistoryList(index, []))}
+    const text = props.nodes[nodeId].text
+    return ( <div onClick={idClickFn} key={index}> <ChevronRight /> <span className="node-link">{text}</span> </div>  )
   })
   
   const goHome = () => { props.setPath([props.homeNode]) }
