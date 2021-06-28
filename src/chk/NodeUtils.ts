@@ -66,7 +66,7 @@ function newSubWithoutRel(state: Types.ChkFlowState): any {
 }
 
 function newSubWithoutRelUsingKey(state: Types.ChkFlowState, key: Types.NodeId): any {
-    const defaults = { text: key, rel: {}, isCollapsed: false  }
+    const defaults = { text: '', rel: {'child':[]}, isCollapsed: false  }
     return {...state, 
       nodes: {...state.nodes, 
         [key]: defaults, 
@@ -75,7 +75,7 @@ function newSubWithoutRelUsingKey(state: Types.ChkFlowState, key: Types.NodeId):
 }
 
 function newSubUsingKey(state:Types.ChkFlowState, key: Types.NodeId, path: Types.NodeId[], relation: Types.NodeId): any {
-    const defaults = { text: key, rel: {'child':[]}, isCollapsed: false  }
+    const defaults = { text: '', rel: {'child':[]}, isCollapsed: false  }
     let newState = setNodeRel(state, path[path.length - 1], relation, key)
     return {...newState, 
       nodes: {...newState.nodes, 
@@ -351,7 +351,7 @@ function newChildUnderThisNode(state: Types.ChkFlowState, path: Types.NodeId[]){
   // console.log('new child fn',state.nodes)
     const thisNodeRelation = getRelation(state, path)
     const newSubId = getNewId(state);
-    const defaults = { text: newSubId, rel: {'child':[]}, isCollapsed: false  }
+    const defaults = { text: '', rel: {'child':[]}, isCollapsed: false  }
     if (path.length > 1){
       const thisNodeIndex = state.nodes[path[path.length - 2]].rel[thisNodeRelation].indexOf(path[path.length - 1])
       let newArr = [...state.nodes[path[path.length - 2]].rel[thisNodeRelation]]
