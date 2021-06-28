@@ -1,5 +1,10 @@
 
-import { getVisuallyNextNodePath, getVisuallyPreviousNodePath, buildSubtree, buildChildSubtree, delArrayPrefix  } from '../chk/NodeUtils'
+import { getVisuallyNextNodePath, 
+    getVisuallyPreviousNodePath, 
+    buildSubtree, 
+    buildChildSubtree, 
+    delArrayPrefix,
+    moveUnderParent  } from '../chk/NodeUtils'
 import ChkFlow, {Types} from '../chk/ChkFlow'
 
 const l1 = {
@@ -108,6 +113,38 @@ describe('properly runs node utilies & operations', ()=>{
         //Get last child of (last child of last child of etc.) previous sibling
         expect(getVisuallyPreviousNodePath(props, ["0","1", "2"])).toEqual(["0","1","5","7"])
         
+    })
+
+    it.skip('moves node below parent in parent\'s list', ()=>{
+        let environment = {
+            rootPath: ['0', '1', '5'],
+            rel: 'child',
+            homeNode: ['0'],
+        }            
+        let props : Types.ChkFlowProps = {
+            environment: environment,
+            settings: settings,
+            nodes: l1,
+        }
+        expect(moveUnderParent(props, ["0","1","5"])).toEqual(null)
+        expect(getVisuallyPreviousNodePath(props, ["0","1","5","6"])).toEqual(["0","1","5"])
+        expect(getVisuallyPreviousNodePath(props, ["0","1","5","7"])).toEqual(["0","1","5","6"])
+
+        environment = {
+            rootPath: ['0', '1'],
+            rel: 'child',
+            homeNode: ['0'],
+        }            
+        props = {
+            environment: environment,
+            settings: settings,
+            nodes: l1,
+        }
+        expect(getVisuallyPreviousNodePath(props, ["0","1", "5"])).toEqual(["0","1"])
+        expect(getVisuallyPreviousNodePath(props, ["0","1","5","6"])).toEqual(["0","1","5",])
+        expect(getVisuallyPreviousNodePath(props, ["0","1","5","7"])).toEqual(["0","1","5","6"])
+
+
     })
 
 })

@@ -7,6 +7,8 @@ type ChkFlowSettings = {
     treeNodeComponent: TreeNodeComponent,
     treeHeadComponent: TreeHeadComponent,
     treeTailComponent: TreeTailEditComponent,
+    defaultNodes: ChkFlowNodes,
+    defaultEnvironment: ChkFlowEnvironment
 }
 
 interface ChkFlowBaseProps {
@@ -35,7 +37,10 @@ type ChkFlowNodes<T extends BaseNodeInfo> = {
 
 interface BaseNodeInfo {
     nodeId: string,
-    children: NodeId[],
+    // children: NodeId[],
+    rel: { 
+        [key:string]: NodeId[] 
+    }
     isCollapsed: boolean
 }
 
@@ -61,6 +66,7 @@ interface TreeNodeProps<T extends BaseNodeInfo> {
     newChild: (path:NodeId[]) => void;
     moveChildFromPath: (path:NodeId[], newParent: NodeId) => void;
     moveUnderPreviousNode: (path:NodeId[]) => void;
+    moveUnderParent: (path:NodeId[]) => void;
     toggleCollapse: (path:NodeId[]) => void;
     newChildUnderThisNode: (path:NodeId[]) => void;
     moveCursorToVisuallyNextNode: (path:NodeId[]) => void

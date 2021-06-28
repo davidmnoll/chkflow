@@ -48,10 +48,17 @@ const DefaultTreeTailEdit: React.FC<Types.DefaultTreeTailProps> = function (prop
         let {atStart, atEnd} = getSelectionTextInfo(textContainer)
         if (atStart){
             if (event.key === 'Tab' ){
-                event.preventDefault()
-                console.log('moveChild')
-                props.moveUnderPreviousNode(props.nodePath)
-                return false;
+                if (!event.shiftKey){
+                    event.preventDefault()
+                    // console.log('moveChildDown')
+                    props.moveUnderPreviousNode(props.nodePath)
+                    return false;
+                }else{
+                    event.preventDefault()
+                    // console.log('moveChildUp')
+                    props.moveUnderParent(props.nodePath)
+                    return false;
+                }
             }
         }
 

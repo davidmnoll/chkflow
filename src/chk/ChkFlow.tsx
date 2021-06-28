@@ -14,30 +14,30 @@ import DefaultTreeTail from './DefaultTreeTail'
  * using defaults as necessary
  */
 
+ const dummyNodes = {
+  '0' : { text: '[root] (you should not be seeing this)', rel: {'child': ['1','3']}, isCollapsed: false },
+  '1' : { text: 'blah1', rel: {'child': ['5', '2']}, isCollapsed: false  },
+  '2' : { text: 'blah2', rel: {'child': ['4']}, isCollapsed: false  },
+  '3' : { text: 'blah3', rel: {'child': []}, isCollapsed: false  },
+  '4' : { text: 'blah4', rel: {'child': []}, isCollapsed: false  },
+  '5' : { text: 'blah5', rel: {'child': ['6','7']}, isCollapsed: false  },
+  '6' : { text: 'blah6', rel: {'child': []}, isCollapsed: false  },
+  '7' : { text: 'blah7', rel: {'child': []}, isCollapsed: false  },
+}
+const dummyEnvironment = {
+  rootPath: ['0', '1', '5'],
+  rel: 'child',
+  homeNode: ['0'],
+  activeNode: [],
+}
+const dummySettings = {
 
+}
  function setDummyData(){
-  const nodes = {
-    '0' : { text: 'blah0', rel: {'child': ['1','3']}, isCollapsed: false },
-    '1' : { text: 'blah1', rel: {'child': ['5', '2']}, isCollapsed: false  },
-    '2' : { text: 'blah2', rel: {'child': ['4']}, isCollapsed: false  },
-    '3' : { text: 'blah3', rel: {'child': []}, isCollapsed: false  },
-    '4' : { text: 'blah4', rel: {'child': []}, isCollapsed: false  },
-    '5' : { text: 'blah5', rel: {'child': ['6','7']}, isCollapsed: false  },
-    '6' : { text: 'blah6', rel: {'child': []}, isCollapsed: false  },
-    '7' : { text: 'blah7', rel: {'child': []}, isCollapsed: false  },
-  }
-  const environment = {
-    rootPath: ['0', '1', '5'],
-    rel: 'child',
-    homeNode: ['0'],
-    activeNode: [],
-  }
-  const settings = {
 
-  }
-  window.localStorage.setItem('chkFlowNodes', JSON.stringify(nodes))
-  window.localStorage.setItem('chkFlowEnvironment', JSON.stringify(environment))
-  window.localStorage.setItem('chkFlowSettings', JSON.stringify(settings))
+  window.localStorage.setItem('chkFlowNodes', JSON.stringify(dummyNodes))
+  window.localStorage.setItem('chkFlowEnvironment', JSON.stringify(dummyEnvironment))
+  window.localStorage.setItem('chkFlowSettings', JSON.stringify(dummySettings))
 }
 
 const ChkFlow: React.FC<Partial<Types.ChkFlowProps>> =  function (props: Partial<Types.ChkFlowProps>) {
@@ -53,10 +53,12 @@ const ChkFlow: React.FC<Partial<Types.ChkFlowProps>> =  function (props: Partial
     treeNodeComponent: DefaultTreeNode,
     treeHeadComponent: DefaultTreeHead,
     treeTailComponent: DefaultTreeTail,
+    defaultEnvironment: dummyEnvironment,
+    defaultNodes: dummyNodes,
     ...props.settings
   }
 
-
+  console.log(settings)
   let savedNodes = window.localStorage.getItem('chkFlowNodes')
   let savedEnv = window.localStorage.getItem('chkFlowEnvironment')
   // let savedSettings = window.localStorage.getItem('chkFlowSettings')

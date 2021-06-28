@@ -16,7 +16,8 @@ import { getNewId,
   moveChildFromPath,
   moveUnderPreviousNode,
   newSubWithoutRelUsingKey,
-  setNodeRel
+  setNodeRel,
+  moveUnderParent
 } from './NodeUtils'
 
 //Todo: make generic & use generics for storing info etc.
@@ -27,6 +28,7 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
     super(props)
     this.state = {...this.state, environment: props.environment, nodes: props.nodes, settings: props.settings }
   }  
+
 
   setStateAndSave(state: Types.ChkFlowState, callback: Function | null =null){
     this.setState(state, ()=>{
@@ -39,6 +41,18 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
     })
   }
 
+  resetNodes(){
+    console.log('reset', this.props.settings.defaultNodes, this.props.settings.defaultEnvironment)
+    window.localStorage.setItem('chkFlowEnvironment', JSON.stringify(this.props.settings.defaultEnvironment));
+    window.localStorage.setItem('chkFlowNodes', JSON.stringify(this.props.settings.defaultNodes));
+      // window.localStorage.setItem('chkFlowSettings', JSON.stringify(this.state.settings));
+    this.setStateAndSave({...this.state, 
+      environment:this.props.settings.defaultEnvironment, 
+      nodes:this.props.settings.defaultNodes, 
+      settings: this.props.settings})
+  }
+
+
   getNodeInfo(id: Types.NodeId): any {
     return this.state.nodes[id]
   }
@@ -47,7 +61,7 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
   }
 
   updateNode(path: Types.NodeId[], data: any ){
-    console.log('updateNode',data);
+    // console.log('updateNode',data);
     let currNode = R.last(path);
     if (currNode){
       this.setStateAndSave({...this.state, nodes: {...this.state.nodes, [currNode]: { ...this.state.nodes[currNode], ...data } }})  
@@ -86,7 +100,13 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
       this.setStateAndSave(moveState)
     }
   }
-
+  moveUnderGrandParentBelowParent(path:Types.NodeId[]){
+    // console.log('move under parent');
+    let moveState = moveUnderParent(this.state, path)
+    if(moveState){
+      this.setStateAndSave(moveState)
+    }
+  }
 
   newChildUnderThisNode(path: Types.NodeId[]){
     // console.log('start state',this.state.nodes)
@@ -173,6 +193,7 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
         setActiveNode={this.setActiveNode.bind(this)}
         moveChildFromPath={this.moveChildFromPath.bind(this)}
         moveUnderPreviousNode={this.moveUnderPreviousNode.bind(this)}
+        moveUnderParent={this.moveUnderGrandParentBelowParent.bind(this)}
         newChildUnderThisNode={this.newChildUnderThisNode.bind(this)}
         moveCursorToVisuallyNextNode={this.moveCursorToVisuallyNextNode.bind(this)}
         moveCursorToVisuallyPreviousNode={this.moveCursorToVisuallyPreviousNode.bind(this)}
@@ -198,6 +219,7 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
           setPath={this.setRootPath.bind(this)}
           rootPath={this.state.environment.rootPath} 
           homeNode={this.state.environment.homeNode}
+          resetNodes={this.resetNodes.bind(this)}
         />
         <div className="nodes-container">
           {this.getComponentTree(this.state.environment.rootPath[this.state.environment.rootPath.length - 1], 'root', this.state.environment.rootPath.slice(0, -1))}
