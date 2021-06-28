@@ -6,9 +6,10 @@ Chkflow is meant to be an react component editor/view for tree and graph data st
 
 ![screenshot of workflowy component](./assets/scrnsht1.png)
 
-# Below is the **desired future** behavior
+### Below is the **desired future** behavior
+---
 
-### Integrate it into your react project:
+# Integrate it into your react project:
 ```sh
 yarn add chkflow
 ```
@@ -19,7 +20,7 @@ or
 npm install -S chkflow
 ```
 
-### Usage:
+# Usage:
 
 To integrate Chkflow:
 
