@@ -7,7 +7,18 @@ function  placeCursorFromBeginning(element: HTMLDivElement, offset: number = 0):
     element.focus()
     let range = document.createRange()
     let selection = window.getSelection()
-    range.setStart(element.childNodes[0], offset )
+    if (element.children.length > 0 ){
+        if (element.children[0].nodeType == Node.TEXT_NODE){
+            range.setStart(element.childNodes[0], offset )
+        }else{
+            let textNode = document.createTextNode('');
+            element.insertBefore(textNode, element.children[0]);
+        }
+    }else{
+        let textNode = document.createTextNode('');
+        element.appendChild(textNode)
+        range.setStart(element.childNodes[0], offset )
+    }
     range.collapse(false)
     if (selection){
         selection.removeAllRanges()
@@ -20,7 +31,18 @@ function placeCursorFromEnd(element: HTMLDivElement, offset: number = 0): void {
     element.focus()
     let range = document.createRange()
     let selection = window.getSelection()
-    range.setStart(element.childNodes[0], element.innerText.length - offset)
+    if (element.children.length > 0 ){
+        if (element.children[0].nodeType == Node.TEXT_NODE){
+            range.setStart(element.childNodes[0], offset )
+        }else{
+            let textNode = document.createTextNode('');
+            element.insertBefore(textNode, element.children[0]);
+        }
+    }else{
+        let textNode = document.createTextNode('');
+        element.appendChild(textNode)
+        range.setStart(element.childNodes[0], offset )
+    }
     range.collapse(false)
     if (selection){
         selection.removeAllRanges()

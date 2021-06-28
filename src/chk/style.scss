@@ -70,8 +70,9 @@ body {
     font-size: 20px;
     color: rgba(33,33,33,1);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    
-    
+    min-width: 300px;
+    align-self: center;
+    text-align: left;
 }
 [contenteditable].node-tail {
     outline: 0px solid transparent;

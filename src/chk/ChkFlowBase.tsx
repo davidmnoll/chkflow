@@ -97,14 +97,28 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
   moveUnderPreviousNode(path: Types.NodeId[]){
     let moveState = moveUnderPreviousNode(this.state, path)
     if (moveState){
-      this.setStateAndSave(moveState)
+      this.setStateAndSave(moveState, ()=>{
+        let nodePath = R.last(path)
+        if (nodePath){
+          let node = document.getElementById(nodePath)?.querySelector('.node-tail');
+          // console.log('newStateNow', this.state.nodes);
+            placeCursorFromBeginning(node as HTMLDivElement);
+        }
+        })
     }
   }
   moveUnderGrandParentBelowParent(path:Types.NodeId[]){
     // console.log('move under parent');
     let moveState = moveUnderParent(this.state, path)
     if(moveState){
-      this.setStateAndSave(moveState)
+      this.setStateAndSave(moveState, ()=>{
+        let nodePath = R.last(path)
+        if (nodePath){
+          let node = document.getElementById(nodePath)?.querySelector('.node-tail');
+          // console.log('newStateNow', this.state.nodes);
+            placeCursorFromBeginning(node as HTMLDivElement);
+        }
+        })
     }
   }
 

@@ -77,6 +77,8 @@ interface TreeNodeProps<T extends BaseNodeInfo> {
 // }
 type TreeNodeState<T> = any
 
+type NodePath = [NodeId, ...NodeId[]]
+
 type DefaultTreeNodeProps = any
 type DefaultTreeHeadProps = any
 type DefaultTreeTailProps = any
@@ -122,6 +124,7 @@ export {
     TreeNodeComponent,
     DefaultNodeInfo,
     NodeId,
+    NodePath,
     BaseNodeInfo,
     TreeNodeInterface,
     DefaultTreeNodeProps,
