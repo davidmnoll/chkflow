@@ -14,15 +14,27 @@ import DefaultTreeTail from './DefaultTreeTail'
  * using defaults as necessary
  */
 
+
+/**
+ * TODO:
+ * - snapshot testing? 
+ * - add typing back in
+ * - remove TreeNode
+ * - test pure functions
+ * - expose clean API
+ * - (optionally? ) factor out storage & put in api
+ * - make initial data informative
+ */
+
  const dummyNodes = {
   '0' : { text: '[root] (you should not be seeing this)', rel: {'child': ['1','3']}, isCollapsed: false },
-  '1' : { text: 'blah1', rel: {'child': ['5', '2']}, isCollapsed: false  },
-  '2' : { text: 'blah2', rel: {'child': ['4']}, isCollapsed: false  },
-  '3' : { text: 'blah3', rel: {'child': []}, isCollapsed: false  },
-  '4' : { text: 'blah4', rel: {'child': []}, isCollapsed: false  },
-  '5' : { text: 'blah5', rel: {'child': ['6','7']}, isCollapsed: false  },
-  '6' : { text: 'blah6', rel: {'child': []}, isCollapsed: false  },
-  '7' : { text: 'blah7', rel: {'child': []}, isCollapsed: false  },
+  '1' : { text: 'chores', rel: {'child': ['5', '2']}, isCollapsed: false  },
+  '2' : { text: 'clean', rel: {'child': ['4']}, isCollapsed: false  },
+  '3' : { text: 'study', rel: {'child': []}, isCollapsed: false  },
+  '4' : { text: 'bathroom', rel: {'child': []}, isCollapsed: false  },
+  '5' : { text: 'groceries', rel: {'child': ['6','7']}, isCollapsed: false  },
+  '6' : { text: 'milk', rel: {'child': []}, isCollapsed: false  },
+  '7' : { text: 'eggs', rel: {'child': []}, isCollapsed: false  },
 }
 const dummyEnvironment = {
   rootPath: ['0', '1', '5'],
