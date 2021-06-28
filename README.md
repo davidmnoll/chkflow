@@ -4,7 +4,7 @@
 
 Chkflow is meant to be an react component editor/view for tree and graph data structures inspired by workflowy's interface.
 
-![screenshot of workflowy component](./assets/scrnsht1.png)
+![screenshot of workflowy component](./assets/scrnrec1.gif)
 
 ### Below is the **desired future** behavior
 ---
