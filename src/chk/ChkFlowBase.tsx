@@ -81,7 +81,7 @@ class ChkFlowBase extends React.Component<Types.ChkFlowBaseProps, Types.ChkFlowS
   }
 
   newSubUsingKey(key: Types.NodeId, path: Types.NodeId[], relation: Types.NodeId): any {
-    const defaults = { text: key, rel: {'child':[]}, isCollapsed: false  }
+    const defaults = { text: '', rel: {'child':[]}, isCollapsed: false  }
     let newState = setNodeRel(this.state, path[path.length - 1], relation, key)
     this.setStateAndSave({...newState, 
       nodes: {...newState.nodes, 
