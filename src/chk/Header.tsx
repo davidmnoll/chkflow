@@ -11,14 +11,14 @@ import {
   Cancel
   
  } from '@material-ui/icons';
-
+import { getNodeIdFromString } from './Utils'
 
 
 
 
 //Todo: create default header
 
-const Header: React.FC<Types.ChkFlowProps> = (props: any) => { 
+const Header: React.FC = (props: any) => { 
   
   const getHistoryList = (index:number, list:number[]): number[] => {
     if (index < 0){
@@ -28,8 +28,8 @@ const Header: React.FC<Types.ChkFlowProps> = (props: any) => {
     return getHistoryList(index - 1, list)
   }
   
-  const history = R.tail(props.rootPath as Array<string>).map((nodeId: Types.NodeId, index:number)=>{
-
+  const history = R.tail(props.rootPath as Array<string>).map((value: string , index:number)=>{
+    let nodeId = getNodeIdFromString(value);
     const idClickFn = () => {props.setPath(getHistoryList(index, []))}
     const text = props.nodes[nodeId].text
     return ( <div onClick={idClickFn} key={index}> <ChevronRight /> <span className="node-link">{text}</span> </div>  )

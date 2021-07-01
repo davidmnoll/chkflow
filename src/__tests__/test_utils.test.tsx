@@ -4,7 +4,7 @@ import { getVisuallyNextNodePath,
     buildSubtree, 
     buildChildSubtree, 
     delArrayPrefix,
-    moveUnderParent  } from '../chk/NodeUtils'
+    moveUnderParent  } from '../chk/Utils'
 import ChkFlow, {Types} from '../chk/ChkFlow'
 
 const l1 = {
