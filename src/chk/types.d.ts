@@ -1,10 +1,17 @@
 import React from "react";
+import { Types } from "./ChkFlow";
+import { 
+    trace,
+    traceBreak,
+    traceFunc,
+    traceQuiet
+} from "./Utils"
 
 
 
-interface ChkFlowState<I, E> extends ChkFlowOptions<I,E> {
-    nodes: ChkFlowNodes<I>;
-    environment: ChkFlowEnvironment<I, E>;
+interface ChkFlowState extends ChkFlowOptions {
+    nodes: ChkFlowNodes;
+    environment: ChkFlowEnvironment;
 }
 
 
@@ -12,68 +19,56 @@ interface ChkFlowState<I, E> extends ChkFlowOptions<I,E> {
  * Default Props for UI elements
  */
 
-type ChkFlowOptions<I, E> = {
+type ChkFlowOptions = {
     nodeComponent: TreeNodeComponent;
-    defaultNodes: ChkFlowNodes<I>;
-    defaultEnvironment: ChkFlowEnvironment<I, E>;
-    setStateCallback: (state: ChkFlowState<I,E>)=> void;
+    containerComponent: ContainerComponent;
+    defaultNodes: ChkFlowNodes;
+    defaultEnvironment: ChkFlowEnvironment;
+    setStateCallback: (state: ChkFlowState)=> void;
     showDummies: boolean;
 }
 
-type ChkFlowEnvironment<I, E> = {
-    homePath: NodePath | NodeRootPath,
+type ChkFlowEnvironment = {
+    homePath: NodePath,
     activeNode: NodePath | null
 }
 
 
 
-/** Node state */
-const RESERVED_IDS = ['0'] as const;
-type IdTuple = typeof RESERVED_IDS;
-type ReservedId = IdTuple[0];
-// type ReservedId = "1" | "0" | "child" | "home" | "root"
-type NotA<T> = T extends ReservedIds ? never : T
-type NotB<T> = ReservedIds extends T ? never : T
-type NotReserved<T> = NotA<T> & NotB<T>
-type GeneratedId = NotReserved<string>
-// type NodeId = GeneratedId | ReservedId
 type NodeId = string
-type NodeRootPath = ['0']
-type NonRootNodePath = [...NodeRootPath,NodeId, ...NodeId[]]
-type NodePath = NodeRootPath | ['0', ...NodeId[]]
+type PathElem = {rel: string, id: NodeId}
+type NodePath = [PathElem, ...PathElem[]]
 
 
 
-type ChkFlowNodes<T> = { 
-    '0': ChkFlowNode<T>, 
-    [nodeId:NodeId]: ChkFlowNode<T>
+type ChkFlowNodes = { 
+    '0': ChkFlowNode, 
+    [nodeId:string]: ChkFlowNode
 }
 
 
-type ChkFlowNode<T> = InfoLeaf<T> | InfoNode<T>
-
-interface InfoLeaf<T> extends BaseNodeInfo<T> {
-    rel: {}
-}
-interface InfoNode<T> extends BaseNodeInfo<T> {
+interface ChkFlowNode extends BaseNodeInfo{
     rel: { 
-        [key:NodeId]: NodePath
-    }
-}
-interface BaseNodeInfo<T> extends T{
+        [key:string]: NodeId[]
+    },
 }
 
+interface BaseNodeInfo {
+    text: string,
+    isCollapsed: boolean
+}
 
 
 /**Display Components &  Props */
 
-interface TreeNodeProps<I, E> {
-    nodePath: NodeId[NodeId];
-    children: TreeNodeComponent<I,E>
-    nodeInfo: ChkFlowNode<I>;
+interface TreeNodeProps {
+    nodePath: NodePath;
+    children: TreeNodeComponent[];
+    nodeInfo: ChkFlowNode;
+    pathElem: PathElem;
     activeNode: NodePath;
     setActiveNode: (path:NodePath) => void;
-    updateNode: (path: NodePath, data: T) => void;
+    updateNode: (path: NodePath, data: ChkFlowNode) => void;
     setPath: (path: NodePath) => void;
     newChildUnderThisNode: (path: NodePath) => void;
     getRelation: (path:NodePath) => NodeId;
@@ -90,52 +85,33 @@ interface TreeNodeProps<I, E> {
 
 // }
 
-
-type TreeNodeComponent<I, E> = React.FC<TreeNodeProps<I, E>> | React.Component<TreeNodeProps<I, E>>
-
-
-
-/** Extras */
-
-class Nothing {
-    empty: true = true;
+interface ContainerProps {
+    environment: ChkFlowEnvironment;
+    nodes: ChkFlowNodes;
+    children: TreeNodeComponent[];
+    setPath: (path: NodePath) => void;
+    resetNodes: () => void;
 }
 
 
-class Just<T> {
-    constructor(content: T){
-        this.content = content;
-    }
-    content: T;
-    empty: false = false;
-}
-
-type Maybe<T> = Just<T> | Nothing;
+type TreeNodeComponent = React.FC<TreeNodeProps> | React.Component<TreeNodeProps>
+type ContainerComponent = React.FC<ContainerProps> | React.Component<ContainerProps>
 
 
 
 
-export {
-    Maybe,
-    Just,
-    Nothing,
-    ChkFlowSettings,
+
+export type {
     ChkFlowState,
     ChkFlowEnvironment,
     ChkFlowNodes,
     ChkFlowNode,
     TreeNodeProps,
+    ContainerProps,
+    ContainerComponent,
     TreeNodeComponent,
-    DefaultNodeInfo,
     NodeId,
-    GeneratedId,
-    ReservedId,
-    IdTuple,
-    RESERVED_IDS,
-    NodeBasePath,
-    NodeRootPath,
+    PathElem,
     NodePath,
     BaseNodeInfo,
-    InfoLeaf,
-    InfoNode,
 }

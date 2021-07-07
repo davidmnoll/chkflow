@@ -1,6 +1,6 @@
 
 import React from 'react'
-import * as Types from './types' 
+import type * as Types from './types' 
 import * as R from 'ramda'
 import { AddBox, 
   IndeterminateCheckBoxOutlined, 
@@ -8,9 +8,16 @@ import { AddBox,
   ArrowDropDownCircle, 
   RadioButtonUnchecked, 
   Adjust } from '@material-ui/icons';
+  import { 
+    trace
+  } from './Trace'
+  import {
+    pathCurrent,
+  } from './Utils'
 
-const DefaultTreeNode = function<I,T>(props:Types.TreeNodeProps<I,T>){ 
+const DefaultTreeNode = function<I extends Types.BaseNodeInfo, E>(props:Types.TreeNodeProps){ 
   
+ 
     function getSelectionTextInfo(el:HTMLElement) {
         var atStart = false, atEnd = false;
         var selRange, testRange;
@@ -42,7 +49,6 @@ const DefaultTreeNode = function<I,T>(props:Types.TreeNodeProps<I,T>){
                 event.preventDefault()
                 // console.log('newChild')
                 props.newChildUnderThisNode(props.nodePath)
-                props.
             }
         }
     }
@@ -77,58 +83,61 @@ const DefaultTreeNode = function<I,T>(props:Types.TreeNodeProps<I,T>){
     }
 
 
+    function toggleCollapse(){
+        let node = props.nodePath[props.nodePath.length - 1];
+        console.log('node', node, props.nodePath)
+        if (node){
+            console.log('node', props.nodeInfo)
+            props.updateNode(props.nodePath, {...props.nodeInfo, isCollapsed: !props.nodeInfo.isCollapsed } )
+        }
+    }
 
-  const TreeHead = props.settings.treeHeadComponent as React.ElementType
-  const TreeTail = props.settings.treeTailComponent as React.ElementType
 
-  const setAsRoot = () => {console.log('updatePathTo', props.nodePath); props.setPath([props.nodePath[props.nodePath.length - 1]])}
-  const moveToHere = () => {console.log('updatePathTo', props.nodePath); props.setPath(props.nodePath)}
+    const setAsRoot = () => {console.log('updatePathTo', props.nodePath); props.setPath([props.nodePath[props.nodePath.length - 1]])}
+    const moveToHere = () => {console.log('updatePathTo', props.nodePath); props.setPath(props.nodePath)}
 
-  // console.log('activeComp',props.activeNode, props.nodePath, (R.equals(props.activeNode, props.nodePath)))
-  const hasChildren = !(props.isCollapsed || !props.children || !(props.children.length > 0))
-  // console.log('active? ', props.activeNode, props.nodePath, R.equals(props.activeNode, props.nodePath))
+    // console.log('activeComp',props.activeNode, props.nodePath, (R.equals(props.activeNode, props.nodePath)))
+    // console.log('active? ', props.activeNode, props.nodePath, R.equals(props.activeNode, props.nodePath))
 
-  let textContainer: HTMLDivElement;
-  const saveEdit = () => {  props.updateNode(props.nodePath, {text: textContainer.textContent}) }
-  // console.log(props.getRelation(props.nodePath))
+    let textContainer: HTMLDivElement;
+    const saveEdit = () => {  props.updateNode(props.nodePath, {...props.nodeInfo, text: textContainer.textContent ? textContainer.textContent : '' }) }
+    // console.log(props.getRelation(props.nodePath))
+    return (
+        <div className="node-container" id={props.pathElem.id}>
+        <div 
+            className={ (R.equals(props.activeNode, props.nodePath)) ? "node-main active" :  "node-main"}
+            onFocusCapture={() => {props.setActiveNode(props.nodePath)}}
+            >
+            <div className="head-container">
+            <div onClick={()=>{toggleCollapse()}} className={ props.children ? "collapse-toggle": "collapse-toggle no-children"}>
+                { props.nodeInfo.isCollapsed ?
+                    <AddBox className="collapsed" /> :
+                    ( !props.children ? 
+                        <CheckBoxOutlineBlankOutlined /> :  
+                        <IndeterminateCheckBoxOutlined className="uncollapsed"/> )}
+            </div>
+            <div onClick={moveToHere} onDoubleClick={setAsRoot} className="menu-dot">
+                <Adjust />
+            </div>
 
-  return (
-    <div className="node-container" id={props.nodePath[props.nodePath.length - 1]}>
-      <div 
-        className={ (R.equals(props.activeNode, props.nodePath)) ? "node-main active" :  "node-main"}
-        onFocusCapture={() => {props.setActiveNode(props.nodePath)}}
-        >
-        <div className="head-container">
-        <div onClick={()=>props.toggle(props.nodePath)} className={props.hasChildren? "collapse-toggle": "collapse-toggle no-children"}>
-            { !props.hasChildren ? 
-                <CheckBoxOutlineBlankOutlined /> :  
-                ( props.isCollapsed ? 
-                    <AddBox className="collapsed" /> : 
-                    <IndeterminateCheckBoxOutlined className="uncollapsed"/> )}
         </div>
-        <div onClick={moveToHere} onDoubleClick={setAsRoot} className="menu-dot">
-            <Adjust />
+        <div
+            className="node-tail"
+            contentEditable="true"  
+            ref={node=>{ if(node){textContainer = node}}} 
+            onBlurCapture={saveEdit}
+            suppressContentEditableWarning={true}
+            onKeyPress={keyPressListen}
+            onKeyDown={keyDownListen}
+        >   
+            {props.nodeInfo.text} 
         </div>
-
-    </div>
-    <div
-        className="node-tail"
-        contentEditable="true"  
-        ref={node=>{ if(node){textContainer = node}}} 
-        onBlurCapture={saveEdit}
-        suppressContentEditableWarning={true}
-        onKeyPress={keyPressListen}
-        onKeyDown={keyDownListen}
-    >   
-        {props.nodeInfo.text} 
-    </div>
-      </div>
-      <div className={hasChildren ? "node-children" : "node-children hidden"} >
-        {  hasChildren ? props.children : ''}
-      </div>
-    </div>
-  )  
-    
+        </div>
+        <div className={props.children ? "node-children" : "node-children hidden"} >
+            {  props.children ? props.children : ''}
+        </div>
+        </div>
+    )
 }
 
 export default DefaultTreeNode

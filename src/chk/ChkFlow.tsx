@@ -1,28 +1,25 @@
 import * as React from 'react'
 import './style.scss'
-import * as Types from './types' 
-import Header from './Header'
-import DefaultTreeNode from './DefaultTreeNode'
+import * as Types from './types.d' 
 import { 
   placeCursorFromBeginning,
   getNodeTailFromPath,
-  getNewId, 
   getVisuallyPreviousNodePath, 
   getVisuallyNextNodePath, 
   newChildUnderThisNode,
-  setRelation,
-  getRelation,
-  newChild,
-  getSubRelations,
-  moveChildFromPath,
+  getSubs,
   moveUnderPreviousNode,
-  newSubWithoutRelUsingKey,
-  setNodeRel,
   moveUnderParent,
-  lastFromPath,
-  getNodePathFromStringArray
+  pathCurrent,
+  focusOnPath,
 } from './Utils'
-
+import * as M from './Maybe'
+import {
+  trace,
+  traceBreak,
+  traceFunc,
+  traceQuiet
+} from './Trace'
 
 const dummyNodes = {
   '0' : { text: '[root] (you should not be seeing this)', rel: {'child': ['1','3']}, isCollapsed: false },
@@ -35,23 +32,24 @@ const dummyNodes = {
   '7' : { text: 'eggs', rel: {'child': []}, isCollapsed: false  },
 }
 const dummyEnvironment = {
-  homePath: ['0', '1', '5'],
-  activeNode: [],
+  homePath: [{rel:'root',id:'0'}, {rel:'child', id:'1'}, {rel:'child', id:'5'}] as Types.NodePath,
+  activeNode: null,
 }
 
 
 
 //Todo: make generic & use generics for storing info etc.
-class ChkFlow<ThisNodeInfo, ThisEnvironment> extends React.Component<Types.ChkFlowSettings<ThisNodeInfo, ThisEnvironment>,Types.ChkFlowState<ThisNodeInfo, ThisEnvironment>> { 
-  constructor(props: Types.ChkFlowSettings<ThisNodeInfo, ThisEnvironment>){
+class ChkFlow extends React.Component<Types.ChkFlowState, Types.ChkFlowState> { 
+  constructor(props: Types.ChkFlowState){
     super(props)
 
-    let rootPath: Types.NodeRootPath = ['0'] as Types.NodeRootPath;
+    const rootPath: Types.NodePath = [{id:'0', rel:'root'}];
 
     let state = {
       nodeComponent: props.nodeComponent, // or DefaultTreeNode
+      containerComponent: props.containerComponent,
       defaultEnvironment: props.showDummies ? dummyEnvironment : {
-        homePath: rootPath as Types.NodeRootPath,
+        homePath: [{id:'0', rel:'root'}] as Types.NodePath,
         activeNode: null,
       },
       defaultNodes: props.showDummies ? dummyNodes : {
@@ -65,11 +63,10 @@ class ChkFlow<ThisNodeInfo, ThisEnvironment> extends React.Component<Types.ChkFl
     const nodes = props.nodes ? props.nodes : state.defaultNodes;
     const environment = props.environment ? props.environment : state.defaultEnvironment;
     this.state = { ...state, environment: environment, nodes: nodes }
-
   }  
 
 
-  setStateAndSave(state: Types.ChkFlowState<ThisNodeInfo, ThisEnvironment>, callback: Function | null = null){
+  setStateAndSave(state: Types.ChkFlowState, callback: Function | null = null){
     this.setState(state, ()=>{
       if(callback !== null){
         callback(this.state);
@@ -96,97 +93,59 @@ class ChkFlow<ThisNodeInfo, ThisEnvironment> extends React.Component<Types.ChkFl
  
 
     this.setStateAndSave({...this.state, 
-      environment:this.props.options.defaultEnvironment, 
-      nodes:this.props.options.defaultNodes, 
+      environment:this.props.defaultEnvironment, 
+      nodes:this.props.defaultNodes, 
     })
   }
 
 
-  getNodeInfo(path: Types.NodePath): Types.ChkFlowNode<ThisNodeInfo> {
-    let id: Types.NodeId = lastFromPath(path)
-    return this.state.nodes[id]
-  }
-  getRelation(path: Types.NodePath){
-    return getRelation(this.state, path)
+  getNodeInfo(path: Types.NodePath): M.Maybe<Types.ChkFlowNode> {
+    let maybeLastElem = pathCurrent(this.state, path)
+    return maybeLastElem.handle((x: Types.PathElem) => this.state.nodes[x.id])
   }
 
-  updateNode(path: Types.NodePath, data: any ){
+  updateNode(path: Types.NodePath, data: Types.ChkFlowNode ){
     // console.log('updateNode',data);
-    let currNode = lastFromPath(path);
-    this.setStateAndSave({...this.state, nodes: {...this.state.nodes, [currNode]: { ...this.state.nodes[currNode], ...data } }})  
+    const maybeCurrNode = pathCurrent(this.state, path);
+    maybeCurrNode.handle( (x: Types.PathElem) => {
+      this.setStateAndSave({...this.state, nodes: {...this.state.nodes, [x.id]: { ...this.state.nodes[x.id], ...data } }})  
+    })
   }
   
-  newChild(path: Types.NodePath){
-    this.setStateAndSave(newChild(this.state, path))
-  }
-
-  setRootPath(path: Types.NodePath){
-    this.setStateAndSave({...this.state, environment: {...this.state.environment, rootPath: path }})
-  }
-
-  setRelation(path: Types.NodePath, relation: Types.NodeId){
-    this.setStateAndSave(setRelation(this.state, path, relation))
-  }
-
-  newSubUsingKey(key: Types.NodeId, path: Types.NodePath, relation: Types.NodeId): any {
-    const defaults = { text: '', rel: {'child':[]}, isCollapsed: false  }
-    let newState = setNodeRel(this.state, path[path.length - 1], relation, key)
-    this.setStateAndSave({...newState, 
-      nodes: {...newState.nodes, 
-        [key]: defaults, 
-      }
-    })
-  }
-
-  moveChildFromPath(path: Types.NodePath, newParent: Types.NodeId){
-    this.setStateAndSave(moveChildFromPath(this.state,path, newParent ))
+  setHomePath(path: Types.NodePath){
+    this.setStateAndSave({...this.state, environment: {...this.state.environment, homePath: path }})
   }
 
   moveUnderPreviousNode(path: Types.NodePath){
-    let moveState = moveUnderPreviousNode(this.state, path)
-    if (moveState){
-      this.setStateAndSave(moveState, ()=>{
-        let nodePath = lastFromPath(path)
-        let node = document.getElementById(nodePath)?.querySelector('.node-tail');
-        // console.log('newStateNow', this.state.nodes);
-          placeCursorFromBeginning(node as HTMLDivElement);
-      })
-    }
+    moveUnderPreviousNode(this.state, path).handle((x: Types.ChkFlowState) => {
+      this.setStateAndSave(x, ()=> focusOnPath(x, path) )
+    })
   }
+
   moveUnderGrandParentBelowParent(path:Types.NodePath){
-    // console.log('move under parent');
-    let moveState = moveUnderParent(this.state, path)
-    if(moveState){
-      this.setStateAndSave(moveState, ()=>{
-        let nodePath = lastFromPath(path)
-        let node = document.getElementById(nodePath)?.querySelector('.node-tail');
-        // console.log('newStateNow', this.state.nodes);
-          placeCursorFromBeginning(node as HTMLDivElement);
-      })
-    }
+    moveUnderParent(this.state, path).handle((x: Types.ChkFlowState) => {
+      this.setStateAndSave(x, ()=> focusOnPath(x, path) )
+    })
   }
 
   newChildUnderThisNode(path: Types.NodePath){
     // console.log('start state',this.state.nodes)
-    let [id, newState] = newChildUnderThisNode(this.state, path)
-    // console.log('newState',newState.nodes)
-    this.setStateAndSave( newState, () => {
-      let newNode = document.getElementById(id)?.querySelector('.node-tail');
-      // console.log('newStateNow', this.state.nodes);
-      if (newNode){
-        placeCursorFromBeginning(newNode as HTMLDivElement);
-      }
+    let maybeNewChildState : M.Maybe<[Types.NodePath,Types.ChkFlowState]> = newChildUnderThisNode(this.state, path).throw()
+    // console.log(maybeNewChildState)
+    maybeNewChildState.handle( (pathState: [Types.NodePath,Types.ChkFlowState])  => {
+      // console.log('pathstate', pathState)
+      this.setStateAndSave( pathState[1], () => {
+        focusOnPath(pathState[1], pathState[0])
+      })
+  
     })
+    // console.log('newState',newState.nodes)
   
   }
 
-  newSubWithoutRelUsingKey(key: Types.NodeId){
-    this.setStateAndSave(newSubWithoutRelUsingKey(this.state, key))
-  }
 
   moveCursorToNodeFromBeginning(path: Types.NodePath, offset:number = 0){
-    let element = getNodeTailFromPath(path);
-    placeCursorFromBeginning(element);
+    getNodeTailFromPath(this.state, path).handle( (node_tail: HTMLDivElement)=> placeCursorFromBeginning(node_tail));
   }
 
   moveCursorToVisuallyPreviousNode(path: Types.NodePath){
@@ -215,89 +174,53 @@ class ChkFlow<ThisNodeInfo, ThisEnvironment> extends React.Component<Types.ChkFl
     })
   }
 
-  toggleCollapse(path: Types.NodePath){
-    let node = lastFromPath(path);
-    console.log('node', node, path)
-    if (node){
-      console.log('node', this.state.nodes[node])
-      this.setStateAndSave({...this.state,
-        nodes: {...this.state.nodes, 
-          [node]: {...this.state.nodes[node],
-            isCollapsed: !this.state.nodes[node].isCollapsed
-          }
-        }
-      }, ()=>console.log(this.state))  
-    }
+  renderNodeChildren(path :Types.NodePath): M.Maybe<React.ReactNode[]>{
+    return getSubs(this.state, path).handle((x: Types.NodePath[]) => {
+      return x.map((y: Types.NodePath) => (this.getNodeTree(y, true).dump()))
+    })
   }
 
-  getComponentTree(id: Types.NodeId, rel: Types.NodeId, path: Types.NodePath, renderLayer:boolean):React.ReactNode{
-    var that = this;
-    const relations = getSubRelations(this.state, id)
-    const hasRelations = (Object.keys(relations).length > 0);
-    const nodeInfo = this.getNodeInfo([...path,id])
-    const TreeNodeDisplay = this.state.options.treeNodeComponent as React.ElementType
-    // console.log('total rels', relations, id, this.state.nodes[id], (Object.keys(relations).length > 0) && true)
-    if (renderLayer){
-      return  (<TreeNodeDisplay
-        key={id}
-        relation={rel}
-        nodePath={[...path, id]} 
-        nodeInfo={nodeInfo}
-        isCollapsed={nodeInfo.isCollapsed} 
-        settings={this.state.options} 
-        render={this.state.options.treeNodeComponent}
-        setPath={this.setRootPath.bind(this)}
-        getRelation={this.getRelation.bind(this)}
-        setRelation={this.setRelation.bind(this)}
-        newChild={this.newChild.bind(this)}
-        activeNode={this.state.environment.activeNode}
-        toggleCollapse={this.toggleCollapse.bind(this)}
-        setActiveNode={this.setActiveNode.bind(this)}
-        moveChildFromPath={this.moveChildFromPath.bind(this)}
-        moveUnderPreviousNode={this.moveUnderPreviousNode.bind(this)}
-        moveUnderParent={this.moveUnderGrandParentBelowParent.bind(this)}
-        newChildUnderThisNode={this.newChildUnderThisNode.bind(this)}
-        moveCursorToVisuallyNextNode={this.moveCursorToVisuallyNextNode.bind(this)}
-        moveCursorToVisuallyPreviousNode={this.moveCursorToVisuallyPreviousNode.bind(this)}
-        updateNode={this.updateNode.bind(this)}>
-        {(hasRelations) ? Object.keys(this.state.nodes[id].rel).map((childRel: Types.NodeId, index: number) => (
-          that.state.nodes[id].rel[childRel].map((value: Types.NodeId, index: number)=>{
-            return that.getComponentTree(childId, childRel, [...path, id], true)
-          })
-        )) : ''}
-      </TreeNodeDisplay>)
-    }else{
-      return ((hasRelations) ? Object.keys(this.state.nodes[id].rel).map((childRel: Types.NodeId, index: number) => (
-        that.state.nodes[id].rel[childRel].map((childId: Types.NodeId, index: number)=>{
-          return that.getComponentTree(childId, childRel, [...path, id], true)
-        })
-      )) : '')
-    }
- 
-      
-}
 
-
+  getNodeTree(path: Types.NodePath, renderLayer:boolean): M.Maybe<React.ReactNode> {
+      return pathCurrent(this.state, path).handle( (curr: Types.PathElem) => {
+        const maybeNodeInfo: M.Maybe<Types.ChkFlowNode> = this.getNodeInfo(path)
+        const nodeInfo : Types.ChkFlowNode | null = maybeNodeInfo.dump()
+        const TreeNodeDisplay = this.state.nodeComponent as React.ElementType
+        // console.log('total rels', relations, id, this.state.nodes[id], (Object.keys(relations).length > 0) && true)
+        if (renderLayer){
+          return  (<TreeNodeDisplay
+            key={curr.id}
+            pathElem={curr}
+            nodePath={[...path]} 
+            nodeInfo={traceQuiet(nodeInfo)}
+            activeNode={this.state.environment.activeNode}
+            setPath={this.setHomePath.bind(this)}
+            setActiveNode={this.setActiveNode.bind(this)}
+            moveUnderPreviousNode={this.moveUnderPreviousNode.bind(this)}
+            newChildUnderThisNode={this.newChildUnderThisNode.bind(this)}
+            moveCursorToVisuallyNextNode={this.moveCursorToVisuallyNextNode.bind(this)}
+            moveCursorToVisuallyPreviousNode={this.moveCursorToVisuallyPreviousNode.bind(this)}
+            updateNode={this.updateNode.bind(this)}>
+            {nodeInfo?.isCollapsed ? '' : this.renderNodeChildren(path).dump()}
+          </TreeNodeDisplay>)
+        }else{
+          return (nodeInfo?.isCollapsed ? '' : this.renderNodeChildren(path).dump())
+        }
+      })
+  }
 
 
   render (){
+    const ContainerDisplay = this.props.containerComponent as React.ElementType;
     return (            
-
-      <div className="chkflow-container">
-        <div className="chkflow-main">
-          <Header  
-            {...this.props} 
-            setPath={this.setRootPath.bind(this)}
-            rootPath={this.state.environment.rootPath} 
-            homeNode={this.state.environment.homeNode}
+          <ContainerDisplay
+            environment={this.state.environment}
             nodes={this.state.nodes}
+            setPath={this.setHomePath.bind(this)}
             resetNodes={this.resetNodes.bind(this)}
-          />
-          <div className="nodes-container">
-            {this.getComponentTree(this.state.environment.rootPath[this.state.environment.rootPath.length - 1], 'root', this.state.environment.rootPath.slice(0, -1), false)}
-          </div>
-        </div>
-      </div>
+            >
+            {this.getNodeTree(this.state.environment.homePath, false).dump()}
+          </ContainerDisplay>  
     )
   
   }
