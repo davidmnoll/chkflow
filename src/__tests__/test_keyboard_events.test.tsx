@@ -1,7 +1,15 @@
-import { render, fireEvent, waitFor, screen } from '@testing-library/react'
+import { render, fireEvent, waitFor, screen, queryByAttribute, queryByText } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 import userEvent from '@testing-library/user-event'
 import ChkFlow, {Types} from '../chk/ChkFlow'
+import DefaultTreeNode from '../chk/DefaultTreeNode'
+import DefaultContainer from '../chk/DefaultContainer'
+import {
+  trace, 
+  traceQuiet,
+  traceBreak,
+  traceFunc
+} from '../chk/Utils'
 
 const l1 = {
   '0' : { text: 'blah0', rel: {'child': ['1','3']}, isCollapsed: false },
@@ -13,21 +21,20 @@ const l1 = {
   '6' : { text: 'blah6', rel: {'child': []}, isCollapsed: false  },
   '7' : { text: 'blah7', rel: {'child': []}, isCollapsed: false  },
 }
+
 let environment = {
-  rootPath: ['0', '1', '5'],
-  rel: 'child',
-  homeNode: ['0'],
+  homePath: [{rel:'root', id:'0'}, {rel:'child', id:'1'}] as Types.NodePath,
+  activeNode: null
 }
-let settings = {}
-let nodes = {
-  ...l1,
-}
-
-
-let props : Types.ChkFlowProps = {
+let state: Types.ChkFlowState = {
   environment: environment,
-  settings: settings,
-  nodes: nodes,
+  nodes: l1,
+  defaultNodes: l1,
+  defaultEnvironment: environment,
+  showDummies: false,
+  nodeComponent: DefaultTreeNode,
+  containerComponent: DefaultContainer,
+  setStateCallback: ()=>{}
 }
 function cursorIsAtEnd(element: HTMLDivElement): boolean{
   let selection = document.getSelection();
@@ -37,33 +44,26 @@ function cursorIsAtEnd(element: HTMLDivElement): boolean{
   }
   return false
 }
+
+
 describe('handling keyboard events properly', ()=>{
 
-  it('adds node below when pressing enter', () => {
-      let props : Types.ChkFlowProps = {
-          environment: environment,
-          settings: settings,
-          nodes: l1,
-      }
-      render(<ChkFlow {...props} />)
-      let elem5 = document.getElementById('5');
-      let elem5Children = elem5?.querySelector('.node-children');
+  it('adds node below when pressing enter', async () => {
+      let dom = render(<ChkFlow {...state} />)
+
+      let elem5parent = screen?.getByText(/blah5/i)?.parentElement?.parentElement
+      let elem5Children = elem5parent?.querySelector('.node-children');
       expect(elem5Children?.childElementCount).toEqual(2)
       let elem7text = screen?.getByText(/blah7/i);
       userEvent.type(elem7text,"test{del}{del}{del}{del}{del}{del}{del}")
       userEvent.type(elem7text,"{enter}")
       fireEvent.keyDown(document.activeElement as Element, { key: 'Enter', code: 'Enter' })
-      elem5Children = elem5?.querySelector('.node-children');
+      elem5Children = elem5parent?.querySelector('.node-children');
       expect(elem5Children?.childElementCount).toEqual(3)
   })
 
   it('focuses & puts cursor in previous node when press up arrow', ()=>{
-    let props : Types.ChkFlowProps = {
-      environment: environment,
-      settings: settings,
-      nodes: l1,
-    }
-    render(<ChkFlow {...props} />)
+    let dom = render(<ChkFlow {...state} />)
     let elem6tail = screen?.getByText(/blah6/i);
     let elem7tail = screen?.getByText(/blah7/i);
     fireEvent.click(elem7tail as HTMLDivElement)
@@ -76,12 +76,7 @@ describe('handling keyboard events properly', ()=>{
   })
 
   it('focuses & puts cursor in next node when press down arrow', ()=>{
-    let props : Types.ChkFlowProps = {
-      environment: environment,
-      settings: settings,
-      nodes: l1,
-    }
-    render(<ChkFlow {...props} />)
+    let dom = render(<ChkFlow {...state} />)
     let elem6tail = screen?.getByText(/blah6/i);
     let elem7tail = screen?.getByText(/blah7/i);
     fireEvent.click(elem6tail as HTMLDivElement)

@@ -1,133 +1,117 @@
 import React from "react";
+import { Types } from "./ChkFlow";
+import { 
+    trace,
+    traceBreak,
+    traceFunc,
+    traceQuiet
+} from "./Utils"
 
 
-/**Initializer Components &  Props */
 
-type ChkFlowSettings = {
-    treeNodeComponent: TreeNodeComponent,
-    treeHeadComponent: TreeHeadComponent,
-    treeTailComponent: TreeTailEditComponent,
-    defaultNodes: ChkFlowNodes,
-    defaultEnvironment: ChkFlowEnvironment
+interface ChkFlowState extends ChkFlowOptions {
+    nodes: ChkFlowNodes;
+    environment: ChkFlowEnvironment;
 }
 
-interface ChkFlowBaseProps {
-    environment: ChkFlowEnvironment,
-    settings: ChkFlowSettings, 
-    nodes: ChkFlowNodes
+
+/**
+ * Default Props for UI elements
+ */
+
+type ChkFlowOptions = {
+    nodeComponent: TreeNodeComponent;
+    containerComponent: ContainerComponent;
+    defaultNodes: ChkFlowNodes;
+    defaultEnvironment: ChkFlowEnvironment;
+    setStateCallback: (state: ChkFlowState)=> void;
+    showDummies: boolean;
 }
 
-type ChkFlowProps = Partial<ChkFlowProps>
-
-type ChkFlowState = any
-// type ChkFlowState = {
-
-// }
-
-
-
-/** Node state */
-
-type NodeId = string 
-
-type ChkFlowNodes<T extends BaseNodeInfo> = {
-    [nodeId:string]: T
+type ChkFlowEnvironment = {
+    homePath: NodePath,
+    activeNode: NodePath | null
 }
 
+
+
+type NodeId = string
+type PathElem = {rel: string, id: NodeId}
+type NodePath = [PathElem, ...PathElem[]]
+
+
+
+type ChkFlowNodes = { 
+    '0': ChkFlowNode, 
+    [nodeId:string]: ChkFlowNode
+}
+
+
+interface ChkFlowNode extends BaseNodeInfo{
+    rel: { 
+        [key:string]: NodeId[]
+    },
+}
 
 interface BaseNodeInfo {
-    nodeId: string,
-    // children: NodeId[],
-    rel: { 
-        [key:string]: NodeId[] 
-    }
-    isCollapsed: boolean
-}
-
-interface DefaultNodeInfo extends BaseNodeInfo {
     text: string,
+    isCollapsed: boolean
 }
 
 
 /**Display Components &  Props */
 
-interface TreeNodeProps<T extends BaseNodeInfo> {
-    nodePath: NodeId[NodeId];
-    nodeInfo: T;
-    settings: ChkFlowSettings;
-    render: TreeNodeComponent;
-    relation: NodeId;
-    activeNode: NodeId[];
-    setActiveNode: (path:NodeId[]) => void;
-    updateNode: (path: NodeId[], data: T) => void;
-    setPath: (path: NodeId[]) => void;
-    getRelation: (path:NodeId[]) => NodeId;
-    setRelation: (path:NodeId[], rel:NodeId) => void;
-    newChild: (path:NodeId[]) => void;
-    moveChildFromPath: (path:NodeId[], newParent: NodeId) => void;
-    moveUnderPreviousNode: (path:NodeId[]) => void;
-    moveUnderParent: (path:NodeId[]) => void;
-    toggleCollapse: (path:NodeId[]) => void;
-    newChildUnderThisNode: (path:NodeId[]) => void;
-    moveCursorToVisuallyNextNode: (path:NodeId[]) => void
-    moveCursorToVisuallyPreviousNode: (path:NodeId[]) => void
+interface TreeNodeProps {
+    nodePath: NodePath;
+    children: TreeNodeComponent[];
+    nodeInfo: ChkFlowNode;
+    pathElem: PathElem;
+    activeNode: NodePath;
+    setActiveNode: (path:NodePath) => void;
+    updateNode: (path: NodePath, data: ChkFlowNode) => void;
+    setPath: (path: NodePath) => void;
+    newChildUnderThisNode: (path: NodePath) => void;
+    getRelation: (path:NodePath) => NodeId;
+    setRelation: (path:NodePath, rel:NodeId) => void;
+    moveChildFromPath: (path:NodePath, newParent: NodeId) => void;
+    moveUnderPreviousNode: (path:NodePath) => void;
+    moveUnderGrandParentBelowParent: (path:NodePath) => void;
+    toggleCollapse: (path:NodePath) => void;
+    newChildUnderThisNode: (path:NodePath) => void;
+    moveCursorToVisuallyNextNode: (path:NodePath) => void
+    moveCursorToVisuallyPreviousNode: (path:NodePath) => void
 }
 // interface TreeNodeState<T extends BaseNodeInfo> {
 
 // }
-type TreeNodeState<T> = any
 
-type NodePath = [NodeId, ...NodeId[]]
-
-type DefaultTreeNodeProps = any
-type DefaultTreeHeadProps = any
-type DefaultTreeTailProps = any
-
-type TreeNodeComponent<T extends BaseNodeInfo> = React.FC<TreeNodeProps<T>> | React.Component<TreeNodeProps<T>>
-type TreeHeadComponent = React.FC<TreeHeadProps> | React.Component<TreeHeadProps>
-type TreeTailComponent = React.FC<TreeTailProps> | React.Component<TreeTailProps>
-
-
-interface TreeNodeInterface {
-
-}
-
-/** Extras */
-
-class Nothing {
-    empty: boolean = true;
+interface ContainerProps {
+    environment: ChkFlowEnvironment;
+    nodes: ChkFlowNodes;
+    children: TreeNodeComponent[];
+    setPath: (path: NodePath) => void;
+    resetNodes: () => void;
 }
 
 
-class Just<T> {
-    constructor(content: T){
-        this.content = content;
-    }
-    empty: boolean = false;
-}
-
-type Maybe<T> = Just<T> | Nothing;
+type TreeNodeComponent = React.FC<TreeNodeProps> | React.Component<TreeNodeProps>
+type ContainerComponent = React.FC<ContainerProps> | React.Component<ContainerProps>
 
 
 
 
-export {
-    Maybe,
-    Just,
-    Nothing,
-    ChkFlowProps,
-    ChkFlowBaseProps,
+
+export type {
     ChkFlowState,
+    ChkFlowEnvironment,
     ChkFlowNodes,
+    ChkFlowNode,
     TreeNodeProps,
-    TreeNodeState,
+    ContainerProps,
+    ContainerComponent,
     TreeNodeComponent,
-    DefaultNodeInfo,
     NodeId,
+    PathElem,
     NodePath,
     BaseNodeInfo,
-    TreeNodeInterface,
-    DefaultTreeNodeProps,
-    DefaultTreeHeadProps,
-    DefaultTreeTailProps,
 }
