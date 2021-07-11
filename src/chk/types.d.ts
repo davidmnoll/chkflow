@@ -75,7 +75,7 @@ interface TreeNodeProps {
     setRelation: (path:NodePath, rel:NodeId) => void;
     moveChildFromPath: (path:NodePath, newParent: NodeId) => void;
     moveUnderPreviousNode: (path:NodePath) => void;
-    moveUnderParent: (path:NodePath) => void;
+    moveUnderGrandParentBelowParent: (path:NodePath) => void;
     toggleCollapse: (path:NodePath) => void;
     newChildUnderThisNode: (path:NodePath) => void;
     moveCursorToVisuallyNextNode: (path:NodePath) => void

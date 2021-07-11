@@ -66,7 +66,7 @@ const DefaultTreeNode = function<I extends Types.BaseNodeInfo, E>(props:Types.Tr
                 }else{
                     event.preventDefault()
                     // console.log('moveChildUp')
-                    props.moveUnderParent(props.nodePath)
+                    props.moveUnderGrandParentBelowParent(props.nodePath)
                     return false;
                 }
             }

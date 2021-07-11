@@ -62,7 +62,7 @@ describe('handling keyboard events properly', ()=>{
       expect(elem5Children?.childElementCount).toEqual(3)
   })
 
-  it.skip('focuses & puts cursor in previous node when press up arrow', ()=>{
+  it('focuses & puts cursor in previous node when press up arrow', ()=>{
     let dom = render(<ChkFlow {...state} />)
     let elem6tail = screen?.getByText(/blah6/i);
     let elem7tail = screen?.getByText(/blah7/i);
@@ -75,7 +75,7 @@ describe('handling keyboard events properly', ()=>{
     expect(active?.outerHTML).toEqual(elem6tail?.outerHTML)
   })
 
-  it.skip('focuses & puts cursor in next node when press down arrow', ()=>{
+  it('focuses & puts cursor in next node when press down arrow', ()=>{
     let dom = render(<ChkFlow {...state} />)
     let elem6tail = screen?.getByText(/blah6/i);
     let elem7tail = screen?.getByText(/blah7/i);
