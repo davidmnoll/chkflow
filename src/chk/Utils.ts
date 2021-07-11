@@ -505,7 +505,6 @@ export {
   getNodeTailFromPath,
   getVisuallyNextNodePath,
   getVisuallyPreviousNodePath,
-  getNewId,
   delArrayPrefix,
   newChildUnderThisNode,
   getSubs,

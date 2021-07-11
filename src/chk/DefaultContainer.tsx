@@ -20,7 +20,7 @@ import {
 
 const DefaultContainer = (props: Types.ContainerProps) => { 
   
-   
+  console.log(props.environment)
   const relevantNodes = R.tail(props.environment.homePath as Types.NodePath); // Nodes except the root, which should be hidden
   const history = relevantNodes.map((value: Types.PathElem , index:number)=>{
     let nodeId = value.id;

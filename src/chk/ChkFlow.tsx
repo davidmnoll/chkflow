@@ -20,34 +20,26 @@ import {
   traceFunc,
   traceQuiet
 } from './Trace'
-
-const dummyNodes = {
-  '0' : { text: '[root] (you should not be seeing this)', rel: {'child': ['1','3']}, isCollapsed: false },
-  '1' : { text: 'chores', rel: {'child': ['5', '2']}, isCollapsed: false  },
-  '2' : { text: 'clean', rel: {'child': ['4']}, isCollapsed: false  },
-  '3' : { text: 'study', rel: {'child': []}, isCollapsed: false  },
-  '4' : { text: 'bathroom', rel: {'child': []}, isCollapsed: false  },
-  '5' : { text: 'groceries', rel: {'child': ['6','7']}, isCollapsed: false  },
-  '6' : { text: 'milk', rel: {'child': []}, isCollapsed: false  },
-  '7' : { text: 'eggs', rel: {'child': []}, isCollapsed: false  },
-}
-const dummyEnvironment = {
-  homePath: [{rel:'root',id:'0'}, {rel:'child', id:'1'}, {rel:'child', id:'5'}] as Types.NodePath,
-  activeNode: null,
-}
-
-
+import {
+  dummyNodes,
+  dummyEnvironment,
+  defaultNodes,
+  defaultEnvironment
+} from './Contant'
+import DefaultContainer from './DefaultContainer'
+import DefaultTreeNode from './DefaultTreeNode'
 
 //Todo: make generic & use generics for storing info etc.
-class ChkFlow extends React.Component<Types.ChkFlowState, Types.ChkFlowState> { 
-  constructor(props: Types.ChkFlowState){
+class ChkFlow extends React.Component<Partial<Types.ChkFlowState>, Types.ChkFlowState> { 
+  constructor(props: Partial<Types.ChkFlowState>){
     super(props)
 
     const rootPath: Types.NodePath = [{id:'0', rel:'root'}];
 
     let state = {
-      nodeComponent: props.nodeComponent, // or DefaultTreeNode
-      containerComponent: props.containerComponent,
+      nodeComponent: props.nodeComponent || DefaultTreeNode, // or DefaultTreeNode
+      containerComponent: props.containerComponent || DefaultContainer,
+      showDummies: ( props.showDummies !== undefined ) ? props.showDummies : false, 
       defaultEnvironment: props.showDummies ? dummyEnvironment : {
         homePath: [{id:'0', rel:'root'}] as Types.NodePath,
         activeNode: null,
@@ -57,7 +49,6 @@ class ChkFlow extends React.Component<Types.ChkFlowState, Types.ChkFlowState> {
         '1' : { text: '', rel: {'child': []}, isCollapsed: false  },
       },
       setStateCallback: props.setStateCallback ? props.setStateCallback : ()=>{},
-      showDummies: props.showDummies
     }
 
     const nodes = props.nodes ? props.nodes : state.defaultNodes;
@@ -67,34 +58,38 @@ class ChkFlow extends React.Component<Types.ChkFlowState, Types.ChkFlowState> {
 
 
   setStateAndSave(state: Types.ChkFlowState, callback: Function | null = null){
+    let p = new Promise((resolve, reject)=>{
+      this.setState(state, ()=>{
+        if(callback !== null){
+          callback(this.state);
+        }
+        resolve(this.state)
+      })
+  
+    })
     this.setState(state, ()=>{
       if(callback !== null){
         callback(this.state);
       }
     })
+
+    return p
   }
 
   
   resetNodes(){
-    console.log('reset', this.state.defaultNodes, this.state.defaultEnvironment)
 
-    const defaultNodes = this.props.showDummies ? dummyNodes : {
-      '0' : { text: '[root] (you should not be seeing this)', rel: {'child': ['1']}, isCollapsed: false },
-      '1' : { text: '', rel: {'child': []}, isCollapsed: false  },
-    }
-    const defaultEnvironment = this.props.showDummies ? dummyEnvironment : {
-      homePath: ['0'],
-      activeNode: [],
-    }
+    const correctDefaultNodes = this.state.showDummies ? dummyNodes : defaultNodes
+    const correctDefaultEnvironment = this.state.showDummies ? dummyEnvironment : defaultEnvironment
+    
 
-    const nodes = this.props.nodes ? this.props.nodes : defaultNodes;
-    const environment = this.props.environment ? this.props.environment : defaultEnvironment;
+    const backupNodes = this.state.defaultNodes ? this.state.defaultNodes : defaultNodes;
+    const backupEnvironment = this.state.defaultEnvironment ? this.state.defaultEnvironment : defaultEnvironment;
 
- 
 
     this.setStateAndSave({...this.state, 
-      environment:this.props.defaultEnvironment, 
-      nodes:this.props.defaultNodes, 
+      environment: backupEnvironment, 
+      nodes: backupNodes, 
     })
   }
 
@@ -107,8 +102,8 @@ class ChkFlow extends React.Component<Types.ChkFlowState, Types.ChkFlowState> {
   updateNode(path: Types.NodePath, data: Types.ChkFlowNode ){
     // console.log('updateNode',data);
     const maybeCurrNode = pathCurrentLast(this.state, path);
-    maybeCurrNode.map( (x: Types.PathElem) => {
-      this.setStateAndSave({...this.state, nodes: {...this.state.nodes, [x.id]: { ...this.state.nodes[x.id], ...data } }})  
+    maybeCurrNode.map( async (x: Types.PathElem) => {
+      await this.setStateAndSave({...this.state, nodes: {...this.state.nodes, [x.id]: { ...this.state.nodes[x.id], ...data } }})  
     })
   }
   
@@ -116,18 +111,21 @@ class ChkFlow extends React.Component<Types.ChkFlowState, Types.ChkFlowState> {
     this.setStateAndSave({...this.state, environment: {...this.state.environment, homePath: path }})
   }
 
+  //Indent
   moveUnderPreviousNode(path: Types.NodePath){
     moveUnderPreviousNode(this.state, path).map((x: Types.ChkFlowState) => {
       this.setStateAndSave(x, ()=> focusOnPath(x, path) )
     })
   }
 
+  //Unindent
   moveUnderGrandParentBelowParent(path:Types.NodePath){
     moveUnderParent(this.state, path).map((x: Types.ChkFlowState) => {
       this.setStateAndSave(x, ()=> focusOnPath(x, path) )
     })
   }
 
+  //New Line
   newChildUnderThisNode(path: Types.NodePath){
     // console.log('start state',this.state.nodes)
     let maybeNewChildState : M.Maybe<[Types.NodePath,Types.ChkFlowState]> = newChildUnderThisNode(this.state, path)
@@ -143,11 +141,12 @@ class ChkFlow extends React.Component<Types.ChkFlowState, Types.ChkFlowState> {
   
   }
 
-
+  //Move cursor to beginning of line (with offset) -- not working but also not very important
   moveCursorToNodeFromBeginning(path: Types.NodePath, offset:number = 0){
     getNodeTailFromPath(this.state, path).map( (node_tail: HTMLDivElement)=> placeCursorFromBeginning(node_tail));
   }
 
+  //move cursor down
   moveCursorToVisuallyPreviousNode(path: Types.NodePath){
     // console.log('move to prev', path)
     const previousNode = getVisuallyPreviousNodePath(this.state, path);
@@ -155,6 +154,7 @@ class ChkFlow extends React.Component<Types.ChkFlowState, Types.ChkFlowState> {
     previousNode.map(x => this.moveCursorToNodeFromBeginning(x))
   }
 
+  //move cursor down
   moveCursorToVisuallyNextNode(path: Types.NodePath){
     // console.log('move to next', path)
     const nextNode = getVisuallyNextNodePath(this.state, path);
@@ -162,13 +162,15 @@ class ChkFlow extends React.Component<Types.ChkFlowState, Types.ChkFlowState> {
     nextNode.map(x => this.moveCursorToNodeFromBeginning(x))
   }
   
-
+  // "highlight node"
   setActiveNode(path: Types.NodePath){
     // console.log("activated", path)
     this.setStateAndSave({...this.state, 
       environment: {...this.state.environment, activeNode: path }
     })
   }
+
+
 
   renderNodeChildren(path :Types.NodePath): M.Maybe<React.ReactNode[]>{
     return getSubs(this.state, path).map((x: Types.NodePath[]) => {
@@ -181,10 +183,10 @@ class ChkFlow extends React.Component<Types.ChkFlowState, Types.ChkFlowState> {
       return pathCurrentLast(this.state, path).map( (curr: Types.PathElem) => {
         const maybeNodeInfo: M.Maybe<Types.ChkFlowNode> = this.getNodeInfo(path)
         const nodeInfo : Types.ChkFlowNode | null = maybeNodeInfo.extractNullable()
-        const TreeNodeDisplay = this.state.nodeComponent as React.ElementType
+        const NodeDisplay = this.state.nodeComponent as React.ElementType
         // console.log('total rels', relations, id, this.state.nodes[id], (Object.keys(relations).length > 0) && true)
         if (renderLayer){
-          return  (<TreeNodeDisplay
+          return  (<NodeDisplay
             key={curr.id}
             pathElem={curr}
             nodePath={[...path]} 
@@ -199,7 +201,7 @@ class ChkFlow extends React.Component<Types.ChkFlowState, Types.ChkFlowState> {
             moveCursorToVisuallyPreviousNode={this.moveCursorToVisuallyPreviousNode.bind(this)}
             updateNode={this.updateNode.bind(this)}>
             {nodeInfo?.isCollapsed ? '' : this.renderNodeChildren(path).extractNullable()}
-          </TreeNodeDisplay>)
+          </NodeDisplay>)
         }else{
           return (nodeInfo?.isCollapsed ? '' : this.renderNodeChildren(path).extractNullable())
         }
@@ -208,7 +210,7 @@ class ChkFlow extends React.Component<Types.ChkFlowState, Types.ChkFlowState> {
 
 
   render (){
-    const ContainerDisplay = this.props.containerComponent as React.ElementType;
+    const ContainerDisplay = this.state.containerComponent as React.ElementType;
     return (            
           <ContainerDisplay
             environment={this.state.environment}
@@ -223,6 +225,6 @@ class ChkFlow extends React.Component<Types.ChkFlowState, Types.ChkFlowState> {
   }
 }
 
-export { Types, ChkFlow }
+export { ChkFlow }
 export default ChkFlow
 

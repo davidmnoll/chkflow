@@ -42,10 +42,13 @@ const DefaultTreeNode = function<I extends Types.BaseNodeInfo, E>(props:Types.Tr
         return { atStart: atStart, atEnd: atEnd };
     }
 
-    const keyPressListen = (event:React.KeyboardEvent) => {
+    const saveEdit = async () => {  console.log("save", textContainer.textContent, props.nodeInfo); props.updateNode(props.nodePath, {...props.nodeInfo, text: textContainer.textContent ? textContainer.textContent : '' }) }
+
+    const keyPressListen = async (event:React.KeyboardEvent) => {
         let {atStart, atEnd} = getSelectionTextInfo(textContainer)
         if (atEnd){
             if (event.key == 'Enter' ){
+                await saveEdit()
                 event.preventDefault()
                 // console.log('newChild')
                 props.newChildUnderThisNode(props.nodePath)
@@ -54,10 +57,11 @@ const DefaultTreeNode = function<I extends Types.BaseNodeInfo, E>(props:Types.Tr
     }
 
 
-    const keyDownListen = (event:React.KeyboardEvent) => {
+    const keyDownListen = async (event:React.KeyboardEvent) => {
         let {atStart, atEnd} = getSelectionTextInfo(textContainer)
         if (atStart){
             if (event.key === 'Tab' ){
+                await saveEdit()
                 if (!event.shiftKey){
                     event.preventDefault()
                     // console.log('moveChildDown')
@@ -73,9 +77,11 @@ const DefaultTreeNode = function<I extends Types.BaseNodeInfo, E>(props:Types.Tr
         }
 
         if (event.key == "ArrowDown" ){
+            await saveEdit()
             props.moveCursorToVisuallyNextNode(props.nodePath)
         }
         if (event.key == "ArrowUp"){
+            await saveEdit()
             console.log("up")
             props.moveCursorToVisuallyPreviousNode(props.nodePath)
         }
@@ -100,7 +106,6 @@ const DefaultTreeNode = function<I extends Types.BaseNodeInfo, E>(props:Types.Tr
     // console.log('active? ', props.activeNode, props.nodePath, R.equals(props.activeNode, props.nodePath))
 
     let textContainer: HTMLDivElement;
-    const saveEdit = () => {  props.updateNode(props.nodePath, {...props.nodeInfo, text: textContainer.textContent ? textContainer.textContent : '' }) }
     // console.log(props.getRelation(props.nodePath))
     return (
         <div className="node-container" id={props.pathElem.id}>

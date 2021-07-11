@@ -33,7 +33,7 @@ type ChkFlowEnvironment = {
     activeNode: NodePath | null
 }
 
-
+type ChkFlowSettings = Partial<ChkFlowState>
 
 type NodeId = string
 type PathElem = {rel: string, id: NodeId}
@@ -103,6 +103,7 @@ type ContainerComponent = React.FC<ContainerProps> | React.Component<ContainerPr
 
 export type {
     ChkFlowState,
+    ChkFlowSettings,
     ChkFlowEnvironment,
     ChkFlowNodes,
     ChkFlowNode,

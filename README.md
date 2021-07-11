@@ -2,12 +2,10 @@
 
 ---
 
-Chkflow is meant to be an react component editor/view for tree and graph data structures inspired by workflowy's interface.
+Chkflow is a react component editor/view for tree and graph data structures inspired by workflowy's interface.
 
 ![screenshot of workflowy component](./assets/scrnrec1.gif)
 
-### Below is the **desired future** behavior
----
 
 #### Integrate it into your react project:
 ```sh
@@ -22,49 +20,124 @@ npm install -S chkflow
 
 #### Usage:
 
-To integrate Chkflow:
+Example usage with javascript:
 
 ```javascript
-import ChkFlow from 'chkflow'
+import './App.css';
+import ChkFlow from 'chkflow';
 
-const getNode = async id => await fetch('your-api/node/'+id).then(data => return data)
+function getNodes(){
+  let savedNodes = window.localStorage.getItem('chkFlowNodes')
 
-const settings = {
-    getNodeCallback: getNode,
+  if (savedNodes) {
+    console.log('retrieved nodes')
+    let nodes = JSON.parse(savedNodes)
+    return nodes;
+  }
 
 }
 
-function MyComponent(props){
-
-    /*** doing stuff ***/
-
-    return (
-        <div class="tree-container">
-            <ChkFlow {...settings} />
-        </div>
-    )
+function getEnv(){
+  let savedEnv = window.localStorage.getItem('chkFlowEnvironment')
+  if (savedEnv){
+    console.log('retrieved environment')
+    let environment = JSON.parse(savedEnv);
+    return environment
+  }
 }
+
+
+function setStateCallback(state){
+  window.localStorage.setItem('chkFlowEnvironment', JSON.stringify(state.environment));
+  window.localStorage.setItem('chkFlowNodes', JSON.stringify(state.nodes));
+}
+
+function App() {
+
+  
+
+  const nodes = getNodes();
+  const environment = getEnv();
+  const settings = {
+    setStateCallback: setStateCallback,
+    nodes: nodes,
+    environment: environment
+  }  
+
+
+
+  return (
+    <div className="App">
+      <ChkFlow {...settings} />
+    </div>
+  );
+}
+
+export default App;
+
+
 ```
 
-With typescript:
+Example usage with typescript:
 ```typescript
-import ChkFlow, types as chktypes from 'chkflow'
+import './App.css';
+import ChkFlow from 'chkflow';
+import type {
+  ChkFlowEnvironment,
+  ChkFlowNodes,
+  ChkFlowSettings,
+  ChkFlowState,
+  ChkFlowNode
+} from 'chkflow'
 
-const getNode = async id => await fetch('your-api/node/'+id).then(data => return data)
+function getNodes(): ChkFlowNodes | undefined{
+  let savedNodes = window.localStorage.getItem('chkFlowNodes')
 
-const settings = {
-    getNodeCallback: getNode,
+  if (savedNodes) {
+    console.log('retrieved nodes')
+    let nodes = JSON.parse(savedNodes)
+    return nodes;
+  }
 
 }
 
-function MyComponent(props){
-
-    /*** doing stuff ***/
-
-    return (
-        <div class="tree-container">
-            <ChkFlow {...settings} />
-        </div>
-    )
+function getEnv(): ChkFlowEnvironment | undefined{
+  let savedEnv = window.localStorage.getItem('chkFlowEnvironment')
+  if (savedEnv){
+    console.log('retrieved environment')
+    let environment = JSON.parse(savedEnv);
+    return environment
+  }
 }
+
+
+function setStateCallback(state: ChkFlowState): void{
+  window.localStorage.setItem('chkFlowEnvironment', JSON.stringify(state.environment));
+  window.localStorage.setItem('chkFlowNodes', JSON.stringify(state.nodes));
+}
+
+function App() {
+
+  
+
+  const nodes = getNodes();
+  const environment = getEnv();
+  const settings: ChkFlowSettings = {
+    setStateCallback: setStateCallback,
+    nodes: nodes as ChkFlowNodes,
+    environment: environment as ChkFlowEnvironment
+  }  
+
+
+
+  return (
+    <div className="App">
+      <ChkFlow {...settings} />
+    </div>
+  );
+}
+
+export default App;
+
+
 ```
