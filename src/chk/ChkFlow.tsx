@@ -13,13 +13,8 @@ import {
   pathCurrentLast,
   focusOnPath,
 } from './Utils'
-import * as M from './Maybe'
-import {
-  trace,
-  traceBreak,
-  traceFunc,
-  traceQuiet
-} from './Trace'
+import { Maybe, Just, Nothing } from 'purify-ts/Maybe'
+
 import {
   dummyNodes,
   dummyEnvironment,
@@ -85,7 +80,7 @@ class ChkFlow extends React.Component<Partial<Types.ChkFlowState>, Types.ChkFlow
   }
 
 
-  getNodeInfo(path: Types.NodePath): M.Maybe<Types.ChkFlowNode> {
+  getNodeInfo(path: Types.NodePath): Maybe<Types.ChkFlowNode> {
     let maybeLastElem = pathCurrentLast(this.state, path)
     return maybeLastElem.map((x: Types.PathElem) => this.state.nodes[x.id])
   }
@@ -129,7 +124,7 @@ class ChkFlow extends React.Component<Partial<Types.ChkFlowState>, Types.ChkFlow
   //New Line
   newChildUnderThisNode(path: Types.NodePath){
     // console.log('start state',this.state.nodes)
-    let maybeNewChildState : M.Maybe<[Types.NodePath,Types.ChkFlowState]> = newChildUnderThisNode(this.state, path)
+    let maybeNewChildState : Maybe<[Types.NodePath,Types.ChkFlowState]> = newChildUnderThisNode(this.state, path)
     // console.log(maybeNewChildState)
     maybeNewChildState.map( (pathState: [Types.NodePath,Types.ChkFlowState])  => {
       // console.log('pathstate', pathState)
@@ -180,16 +175,16 @@ class ChkFlow extends React.Component<Partial<Types.ChkFlowState>, Types.ChkFlow
 
 
 
-  renderNodeChildren(path :Types.NodePath): M.Maybe<React.ReactNode[]>{
+  renderNodeChildren(path :Types.NodePath): Maybe<React.ReactNode[]>{
     return getSubs(this.state, path).map((x: Types.NodePath[]) => {
       return x.map((y: Types.NodePath) => (this.getNodeTree(y, true).extractNullable()))
     })
   }
 
 
-  getNodeTree(path: Types.NodePath, renderLayer:boolean): M.Maybe<React.ReactNode> {
+  getNodeTree(path: Types.NodePath, renderLayer:boolean): Maybe<React.ReactNode> {
       return pathCurrentLast(this.state, path).map( (curr: Types.PathElem) => {
-        const maybeNodeInfo: M.Maybe<Types.ChkFlowNode> = this.getNodeInfo(path)
+        const maybeNodeInfo: Maybe<Types.ChkFlowNode> = this.getNodeInfo(path)
         const nodeInfo : Types.ChkFlowNode | null = maybeNodeInfo.extractNullable()
         const NodeDisplay = this.state.nodeComponent as React.ElementType
         // console.log('total rels', relations, id, this.state.nodes[id], (Object.keys(relations).length > 0) && true)
@@ -198,7 +193,7 @@ class ChkFlow extends React.Component<Partial<Types.ChkFlowState>, Types.ChkFlow
             key={curr.id}
             pathElem={curr}
             nodePath={[...path]} 
-            nodeInfo={traceQuiet(nodeInfo)}
+            nodeInfo={nodeInfo}
             activeNode={this.state.environment.activeNode}
             setPath={this.setHomePath.bind(this)}
             setActiveNode={this.setActiveNode.bind(this)}

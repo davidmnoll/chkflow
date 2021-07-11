@@ -8,12 +8,6 @@ import { AddBox,
   ArrowDropDownCircle, 
   RadioButtonUnchecked, 
   Adjust } from '@material-ui/icons';
-  import { 
-    trace
-  } from './Trace'
-  import {
-    pathCurrent,
-  } from './Utils'
 
 const DefaultTreeNode = function<I extends Types.BaseNodeInfo, E>(props:Types.TreeNodeProps){ 
   
