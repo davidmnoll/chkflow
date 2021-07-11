@@ -58,22 +58,13 @@ class ChkFlow extends React.Component<Partial<Types.ChkFlowState>, Types.ChkFlow
 
 
   setStateAndSave(state: Types.ChkFlowState, callback: Function | null = null){
-    let p = new Promise((resolve, reject)=>{
-      this.setState(state, ()=>{
-        if(callback !== null){
-          callback(this.state);
-        }
-        resolve(this.state)
-      })
-  
-    })
     this.setState(state, ()=>{
+      // this.state.setStateCallback(this.state)
       if(callback !== null){
         callback(this.state);
       }
     })
 
-    return p
   }
 
   
@@ -101,10 +92,20 @@ class ChkFlow extends React.Component<Partial<Types.ChkFlowState>, Types.ChkFlow
 
   updateNode(path: Types.NodePath, data: Types.ChkFlowNode ){
     // console.log('updateNode',data);
-    const maybeCurrNode = pathCurrentLast(this.state, path);
-    maybeCurrNode.map( async (x: Types.PathElem) => {
-      await this.setStateAndSave({...this.state, nodes: {...this.state.nodes, [x.id]: { ...this.state.nodes[x.id], ...data } }})  
+    let p = new Promise((resolve, reject)=>{
+      const maybeCurrNode = pathCurrentLast(this.state, path);
+      maybeCurrNode.map( async (x: Types.PathElem) => {
+        this.setStateAndSave({...this.state, nodes: {...this.state.nodes, [x.id]: { ...this.state.nodes[x.id], ...data } }}, ()=>{
+        resolve(this.state)
+        })
+  
+      })
     })
+    const maybeCurrNode2 = pathCurrentLast(this.state, path);
+    maybeCurrNode2.map( async (x: Types.PathElem) => {
+      this.setStateAndSave({...this.state, nodes: {...this.state.nodes, [x.id]: { ...this.state.nodes[x.id], ...data } }})
+    })
+    return p
   }
   
   setHomePath(path: Types.NodePath){
@@ -149,18 +150,25 @@ class ChkFlow extends React.Component<Partial<Types.ChkFlowState>, Types.ChkFlow
   //move cursor down
   moveCursorToVisuallyPreviousNode(path: Types.NodePath){
     // console.log('move to prev', path)
-    const previousNode = getVisuallyPreviousNodePath(this.state, path);
+    const maybePreviousNode = getVisuallyPreviousNodePath(this.state, path);
     // console.log('prev',previousNode);
-    previousNode.map(x => this.moveCursorToNodeFromBeginning(x))
+    maybePreviousNode.map(previousNode => {
+      this.setActiveNode(previousNode)
+      this.moveCursorToNodeFromBeginning(previousNode)
+    })
   }
 
   //move cursor down
   moveCursorToVisuallyNextNode(path: Types.NodePath){
     // console.log('move to next', path)
-    const nextNode = getVisuallyNextNodePath(this.state, path);
+    const maybeNextNode = getVisuallyNextNodePath(this.state, path);
     // console.log('next', nextNode)
-    nextNode.map(x => this.moveCursorToNodeFromBeginning(x))
+    maybeNextNode.map( nextNode => {
+      this.setActiveNode(nextNode)
+      this.moveCursorToNodeFromBeginning(nextNode)
+    })
   }
+
   
   // "highlight node"
   setActiveNode(path: Types.NodePath){

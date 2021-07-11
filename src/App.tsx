@@ -43,7 +43,8 @@ function App() {
   const settings: ChkFlowSettings = {
     setStateCallback: setStateCallback,
     nodes: nodes as ChkFlowNodes,
-    environment: environment as ChkFlowEnvironment
+    environment: environment as ChkFlowEnvironment,
+    showDummies: true
   }  
 
 
