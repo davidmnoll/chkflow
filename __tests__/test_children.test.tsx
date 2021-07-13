@@ -1,14 +1,16 @@
 import { render, fireEvent, waitFor, screen } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
-import ChkFlow, {Types} from '../chk/ChkFlow'
-import DefaultTreeNode from '../chk/DefaultTreeNode'
-import DefaultContainer from '../chk/DefaultContainer'
-import {
-  trace, 
-  traceQuiet,
-  traceBreak,
-  traceFunc
-} from '../chk/Utils'
+import ChkFlow from '../src/chk/ChkFlow'
+import DefaultTreeNode from '../src/chk/DefaultTreeNode'
+import DefaultContainer from '../src/chk/DefaultContainer'
+import type {
+  ChkFlowSettings,
+  ChkFlowState,
+  ChkFlowEnvironment,
+  ChkFlowNodes,
+  PathElem,
+  NodePath
+} from '../src/chk'
 
 const l1 = {
     '0' : { text: 'blah0', rel: {'child': ['1','3']}, isCollapsed: false },
@@ -34,10 +36,10 @@ const l1 = {
 
 
   let environment = {
-    homePath: [{rel:'root', id:'0'}, {rel:'child', id:'1'}] as Types.NodePath,
+    homePath: [{rel:'root', id:'0'}, {rel:'child', id:'1'}] as NodePath,
     activeNode: null
   }
-  let state: Types.ChkFlowState = {
+  let state: ChkFlowState = {
     environment: environment,
     nodes: l1,
     defaultNodes: l1,
@@ -65,7 +67,7 @@ describe('rendering children properly', ()=>{
     });
 
     it('does not show children if not expanded', () => {
-        let state: Types.ChkFlowState = {
+        let state: ChkFlowState = {
             environment: environment,
             nodes: l2,
             defaultNodes: l2,

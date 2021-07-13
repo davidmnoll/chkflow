@@ -1,6 +1,7 @@
 
 import React from 'react'
 import type * as Types from './types' 
+import styled from 'styled-components'
 import * as R from 'ramda'
 import { AddBox, 
   IndeterminateCheckBoxOutlined, 
@@ -9,7 +10,79 @@ import { AddBox,
   RadioButtonUnchecked, 
   Adjust } from '@material-ui/icons';
 
-const DefaultTreeNode = function<I extends Types.BaseNodeInfo, E>(props:Types.TreeNodeProps){ 
+  const NodeContainer = styled.div`
+  & {
+      font-size: 32px;
+  }
+  &>.node-main {
+      display: flex;
+      flex-direction: row;
+      border: 1px solid white;
+      align-items: center;
+  }
+  &>.node-main.active{
+      border: 1px solid rgba(33,33,33,.5);
+      background-color: rgba(33,33,33,.3);
+  }
+  &>div.node-main>div.node-tail {
+      // border: 1px solid orange;
+      padding: 3px;
+      font-size: 20px;
+      color: rgba(33,33,33,1);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-width: 300px;
+      align-self: center;
+      text-align: left;
+  }
+  & [contenteditable].node-tail {
+      outline: 0px solid transparent;
+  }
+  
+  &>.node-children {
+      // border: 1px solid green;
+      padding-left: 20px;
+      transition: opacity 1300ms;
+      opacity: 1;
+  }
+  &>.node-children.hidden {
+      transition: opacity 1300ms;
+      opacity: 0;
+  }
+  
+  
+
+`
+const HeadContainer = styled.div`
+  & {
+      display: flex;
+      flex-direction: row;
+  }
+  &>div.menu-dot>svg{
+      // padding: 10px;
+      fill: rgba(33,33,33,.3);
+  }
+  &>div.menu-dot:hover>svg{
+      fill: rgba(33,33,33,.7);
+  }
+  &>div.collapse-toggle.no-children{
+      color: rgba(33,33,33,.1);
+  }
+  &>div.collapse-toggle:hover{
+      opacity: 1;
+  }
+  &>div.collapse-toggle{
+      color: rgba(0,33,99,.5);
+      opacity: .7;
+  }
+  &>div.collapse-toggle > .collapsed{
+      transition: color 300ms;
+      color: rgba(0,33,99,1);
+      opacity: .7;
+  }
+`
+
+
+const DefaultTreeNode = function(props:Types.TreeNodeProps){ 
   
  
     function getSelectionTextInfo(el:HTMLElement) {
@@ -101,41 +174,44 @@ const DefaultTreeNode = function<I extends Types.BaseNodeInfo, E>(props:Types.Tr
 
     let textContainer: HTMLDivElement;
     // console.log(props.getRelation(props.nodePath))
+
+
+
     return (
-        <div className="node-container" id={props.pathElem.id}>
+        <NodeContainer className="node-container" id={props.pathElem.id}>
         <div 
             className={ (R.equals(props.activeNode, props.nodePath)) ? "node-main active" :  "node-main"}
             onFocusCapture={() => {props.setActiveNode(props.nodePath)}}
             >
-            <div className="head-container">
-            <div onClick={()=>{toggleCollapse()}} className={ props.children ? "collapse-toggle": "collapse-toggle no-children"}>
-                { props.nodeInfo.isCollapsed ?
-                    <AddBox className="collapsed" /> :
-                    ( !props.children ? 
-                        <CheckBoxOutlineBlankOutlined /> :  
-                        <IndeterminateCheckBoxOutlined className="uncollapsed"/> )}
-            </div>
-            <div onClick={moveToHere} onDoubleClick={setAsRoot} className="menu-dot">
-                <Adjust />
-            </div>
+            <HeadContainer className="head-container">
+                <div onClick={()=>{toggleCollapse()}} className={ props.children ? "collapse-toggle": "collapse-toggle no-children"}>
+                    { props.nodeInfo.isCollapsed ?
+                        <AddBox className="collapsed" /> :
+                        ( !props.children ? 
+                            <CheckBoxOutlineBlankOutlined /> :  
+                            <IndeterminateCheckBoxOutlined className="uncollapsed"/> )}
+                </div>
+                <div onClick={moveToHere} onDoubleClick={setAsRoot} className="menu-dot">
+                    <Adjust />
+                </div>
 
-        </div>
-        <div
-            className="node-tail"
-            contentEditable="true"  
-            ref={node=>{ if(node){textContainer = node}}} 
-            onBlurCapture={saveEdit}
-            suppressContentEditableWarning={true}
-            onKeyPress={keyPressListen}
-            onKeyDown={keyDownListen}
-        >   
-            {props.nodeInfo.text} 
-        </div>
+            </HeadContainer>
+            <div
+                className="node-tail"
+                contentEditable="true"  
+                ref={node=>{ if(node){textContainer = node}}} 
+                onBlurCapture={saveEdit}
+                suppressContentEditableWarning={true}
+                onKeyPress={keyPressListen}
+                onKeyDown={keyDownListen}
+            >   
+                {props.nodeInfo.text} 
+            </div>
         </div>
         <div className={props.children ? "node-children" : "node-children hidden"} >
             {  props.children ? props.children : ''}
         </div>
-        </div>
+        </NodeContainer>
     )
 }
 

@@ -1,5 +1,4 @@
 import * as React from 'react'
-import './style.scss'
 import * as Types from './types.d' 
 import { 
   placeCursorFromBeginning,

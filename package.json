@@ -19,8 +19,9 @@
     "ramda": "^0.27.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "react-scripts": "4.0.3",
+    "react-scripts": "^4.0.3",
     "sass": "^1.34.0",
+    "styled-components": "^5.3.0",
     "ts-jest": "^27.0.3",
     "typescript": "^4.1.2",
     "web-vitals": "^1.0.1"
@@ -29,7 +30,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "package": "node package/package"
   },
   "eslintConfig": {
     "extends": [
@@ -52,6 +54,10 @@
   "devDependencies": {
     "@stryker-mutator/core": "^5.1.1",
     "@stryker-mutator/jest-runner": "^5.1.1",
-    "@types/jsdom": "^16.2.12"
+    "@types/jsdom": "^16.2.12",
+    "@types/styled-components": "^5.1.11",
+    "babel-plugin-polyfill-corejs2": "^0.2.2",
+    "babel-plugin-polyfill-corejs3": "^0.2.3",
+    "babel-plugin-polyfill-regenerator": "^0.2.2"
   }
 }

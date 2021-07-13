@@ -5,10 +5,18 @@ import { getVisuallyNextNodePath,
     moveUnderParent,
     getSubs,
     moveUnderPreviousNode
-  } from '../chk/Utils'
-import ChkFlow, {Types} from '../chk/ChkFlow'
-import DefaultTreeNode from '../chk/DefaultTreeNode'
-import DefaultContainer from '../chk/DefaultContainer'
+} from '../src/chk/Utils'
+import type {
+    ChkFlowSettings,
+    ChkFlowState,
+    ChkFlowEnvironment,
+    ChkFlowNodes,
+    PathElem,
+    NodePath
+} from '../src/chk'
+import ChkFlow from '../src/chk/ChkFlow'
+import DefaultTreeNode from '../src/chk/DefaultTreeNode'
+import DefaultContainer from '../src/chk/DefaultContainer'
 import * as R from 'ramda'
 
 const l1 = {
@@ -54,19 +62,19 @@ const l4 = {
 }
 
 let environment1 = {
-    homePath: [{rel:'root', id:'0'}, {rel:'child', id:'1'}, {rel:'child', id:'5'}] as Types.NodePath,
+    homePath: [{rel:'root', id:'0'}, {rel:'child', id:'1'}, {rel:'child', id:'5'}] as NodePath,
     activeNode: null
 }
 let environment2 = {
-    homePath: [{rel:'root', id:'0'}, {rel:'child', id:'1'}] as Types.NodePath,
+    homePath: [{rel:'root', id:'0'}, {rel:'child', id:'1'}] as NodePath,
     activeNode: null
 }
 let environment3 = {
-    homePath: [{rel:'root', id:'0'}] as Types.NodePath,
+    homePath: [{rel:'root', id:'0'}] as NodePath,
     activeNode: null
 }
 
-let state1: Types.ChkFlowState = {
+let state1: ChkFlowState = {
     environment: environment1,
     nodes: l1,
     defaultNodes: l1,
@@ -76,7 +84,7 @@ let state1: Types.ChkFlowState = {
     containerComponent: DefaultContainer,
     setStateCallback: ()=>{}
 }
-let state2: Types.ChkFlowState = {
+let state2: ChkFlowState = {
     environment: environment2,
     nodes: l2,
     defaultNodes: l2,
@@ -86,7 +94,7 @@ let state2: Types.ChkFlowState = {
     containerComponent: DefaultContainer,
     setStateCallback: ()=>{}
 }
-let state3: Types.ChkFlowState = {
+let state3: ChkFlowState = {
     environment: environment3,
     nodes: l2,
     defaultNodes: l2,
@@ -96,7 +104,7 @@ let state3: Types.ChkFlowState = {
     containerComponent: DefaultContainer,
     setStateCallback: ()=>{}
 }
-let state4: Types.ChkFlowState = {
+let state4: ChkFlowState = {
     environment: environment2,
     nodes: l3,
     defaultNodes: l1,
@@ -107,7 +115,7 @@ let state4: Types.ChkFlowState = {
     setStateCallback: ()=>{}
 }
 
-let state5: Types.ChkFlowState = {
+let state5: ChkFlowState = {
     environment: environment2,
     nodes: l1,
     defaultNodes: l1,
@@ -117,7 +125,7 @@ let state5: Types.ChkFlowState = {
     containerComponent: DefaultContainer,
     setStateCallback: ()=>{}
 }
-let state6: Types.ChkFlowState = {
+let state6: ChkFlowState = {
     environment: environment2,
     nodes: l4,
     defaultNodes: l1,
@@ -135,10 +143,10 @@ describe('properly runs node utilies & operations', ()=>{
 
 
     it('gets child paths from node & state', ()=>{
-        getSubs(state1, [{rel:'root', id:'0'}]).map( (subs : Types.NodePath[]) => {
+        getSubs(state1, [{rel:'root', id:'0'}]).map( (subs : NodePath[]) => {
             return expect(subs).toEqual([[{rel:'root', id:'0'}, {rel:'child', id:'1'}],[{rel:'root', id:'0'}, {rel:'child', id:'3'}]])
         }).unsafeCoerce()
-        getSubs(state1, [{rel:'root', id:'0'}, {rel:'child', id:'1'}]).map( (subs : Types.NodePath[]) => {
+        getSubs(state1, [{rel:'root', id:'0'}, {rel:'child', id:'1'}]).map( (subs : NodePath[]) => {
             return expect(subs).toEqual([[{rel:'root', id:'0'}, {rel:'child', id:'1'}, {rel:'child', id:'5'}], [{rel:'root', id:'0'}, {rel:'child', id:'1'}, {rel:'child', id:'2'}]])
         }).unsafeCoerce()
         let extracted = getSubs(state1, [{rel:'root', id:'0'}, {rel:'child', id:'1'}, {rel:'child', id:'5'}, {rel:'child', id:'6'}]).extractNullable()

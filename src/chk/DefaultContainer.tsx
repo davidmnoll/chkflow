@@ -1,6 +1,6 @@
 import * as React from 'react'
-import './style.scss'
 import * as Types from './types.d'
+import styled from 'styled-components'
 import * as R from 'ramda'
 
 import { 
@@ -14,7 +14,41 @@ import {
  } from '@material-ui/icons';
 
 
+ const HeaderContainer = styled.div`
 
+ & {
+   // border: 1px solid black;
+   display: flex;
+   flex-direction: row;
+   font-size: 24px;
+   padding: 5px;
+   align-items: center;
+ }
+
+ &>div.history {
+   min-width: 200px;
+   display: flex;
+   flex-direction: row;
+   align-items: center;
+   vertical-align: middle;
+
+ }
+
+ &>div.history svg{
+   vertical-align: middle;
+ }
+ &>div.history.node-link {
+   vertical-align: middle;
+   padding: 0px;
+   font-size: 20px;
+   color: rgba(33,33,33,1);
+   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+ }
+ &>div.home-node-button {
+   vertical-align: middle;
+ }
+
+ `;
 
 //Todo: create default header
 
@@ -35,10 +69,11 @@ const DefaultContainer = (props: Types.ContainerProps) => {
   
   const goHome = () => { props.setPath([{id:'0', rel:'root'}]) }
 
+
   return (
     <div className="chkflow-container">
       <div className="chkflow-main">
-        <div className="header-container">
+        <HeaderContainer className="header-container">
           {/* <FontAwesomeIcon icon={faArrowAltCircleLeft} /> */}
           {/* <div className="back-button">
             <ArrowBackIos />
@@ -55,7 +90,7 @@ const DefaultContainer = (props: Types.ContainerProps) => {
           <div className="cancel-button" onClick={props.resetNodes}>
             <Cancel />
           </div>
-        </div>
+        </HeaderContainer>
         <div className="nodes-container">
           {props.children}
         </div>

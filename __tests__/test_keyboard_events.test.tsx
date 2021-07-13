@@ -1,15 +1,18 @@
 import { render, fireEvent, waitFor, screen, queryByAttribute, queryByText } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 import userEvent from '@testing-library/user-event'
-import ChkFlow, {Types} from '../chk/ChkFlow'
-import DefaultTreeNode from '../chk/DefaultTreeNode'
-import DefaultContainer from '../chk/DefaultContainer'
-import {
-  trace, 
-  traceQuiet,
-  traceBreak,
-  traceFunc
-} from '../chk/Utils'
+import ChkFlow from '../src/chk/ChkFlow'
+import type {
+  ChkFlowSettings,
+  ChkFlowState,
+  ChkFlowEnvironment,
+  ChkFlowNodes,
+  PathElem,
+  NodePath
+} from '../src/chk'
+import DefaultTreeNode from '../src/chk/DefaultTreeNode'
+import DefaultContainer from '../src/chk/DefaultContainer'
+
 
 const l1 = {
   '0' : { text: 'blah0', rel: {'child': ['1','3']}, isCollapsed: false },
@@ -23,10 +26,10 @@ const l1 = {
 }
 
 let environment = {
-  homePath: [{rel:'root', id:'0'}, {rel:'child', id:'1'}] as Types.NodePath,
+  homePath: [{rel:'root', id:'0'}, {rel:'child', id:'1'}] as NodePath,
   activeNode: null
 }
-let state: Types.ChkFlowState = {
+let state: ChkFlowState = {
   environment: environment,
   nodes: l1,
   defaultNodes: l1,
