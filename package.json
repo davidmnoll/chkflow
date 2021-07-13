@@ -2,8 +2,8 @@
   "name": "chkflow",
   "version": "0.1.2",
   "private": false,
-  "main": ".package/package.min",
-  "types": "package/package.min",
+  "main": "./package/package.min",
+  "types": "./package/package.min",
   "dependencies": {
     "ramda": "^0.27.1"
   },
