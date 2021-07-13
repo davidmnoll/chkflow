@@ -227,6 +227,5 @@ class ChkFlow extends React.Component<Partial<Types.ChkFlowState>, Types.ChkFlow
   }
 }
 
-export { ChkFlow }
 export default ChkFlow
 

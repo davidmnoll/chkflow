@@ -1,6 +1,6 @@
 import * as Types from './types.d' 
 import * as R from 'ramda'
-import { Maybe, Just, Nothing } from 'purify-ts/Maybe'
+import { Maybe } from 'purify-ts/Maybe'
 
 
 function pathValid(state:Types.ChkFlowState, path: Types.NodePath ): Maybe<Types.NodePath> {
