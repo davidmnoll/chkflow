@@ -1,6 +1,6 @@
 {
   "name": "chkflow",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "private": false,
   "entry": "dist/bundle.min.js",
   "main": "dist/bundle.min.js",
