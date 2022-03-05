@@ -1,8 +1,8 @@
 import { render, fireEvent, waitFor, screen } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
-import ChkFlow from '../src/chk/ChkFlow'
-import DefaultTreeNode from '../src/chk/DefaultTreeNode'
-import DefaultContainer from '../src/chk/DefaultContainer'
+import ChkFlow from '../chk/ChkFlow'
+import DefaultTreeNode from '../chk/DefaultTreeNode'
+import DefaultContainer from '../chk/DefaultContainer'
 import type {
   ChkFlowSettings,
   ChkFlowState,
@@ -10,7 +10,7 @@ import type {
   ChkFlowNodes,
   PathElem,
   NodePath
-} from '../src/chk'
+} from '../chk'
 
 const l1 = {
     '0' : { text: 'blah0', rel: {'child': ['1','3']}, isCollapsed: false },
@@ -52,39 +52,35 @@ const l1 = {
 describe('rendering children properly', ()=>{
 
     it('shows children if expanded', () => {
-        render(<ChkFlow {...state} />)
-        let elem = null;
-        if (screen){
-            let elem1 = screen.getByText(/blah5/i);
-            let elem2 = elem1.closest('.node-container')
-            if (elem2){
-                elem = elem2.querySelector(".node-children")
-            }
+      render(<ChkFlow {...state} />)
+      let elem = null;
+      if (screen){
+        let elem1 = screen.getByText(/blah5/i);
+        let elem2 = elem1.closest('.node-container')
+        if (elem2){
+          elem = elem2.querySelector(".node-children")
         }
-        expect(elem).toHaveTextContent(/blah6/i)
-        expect(elem).toHaveTextContent(/blah7/i)
+      }
+      expect(elem).toHaveTextContent(/blah6/i)
+      expect(elem).toHaveTextContent(/blah7/i)
 
     });
 
     it('does not show children if not expanded', () => {
-        let state: ChkFlowState = {
-            environment: environment,
-            nodes: l2,
-            defaultNodes: l2,
-            defaultEnvironment: environment,
-            showDummies: false,
-            nodeComponent: DefaultTreeNode,
-            containerComponent: DefaultContainer,
-            setStateCallback: ()=>{}
-          }
-        render(<ChkFlow {...state} />)
-        if (screen){
-            let elem1 = screen.getByText(/blah5/i);
-            let elem2 = elem1.closest('.node-container')
-            expect(elem2).not.toHaveTextContent(/blah6/i)
-            expect(elem2).not.toHaveTextContent(/blah7/i)
-        }else {
-            throw new Error("no screen")
-        }
+      let state: ChkFlowState = {
+        environment: environment,
+        nodes: l2,
+        defaultNodes: l2,
+        defaultEnvironment: environment,
+        showDummies: false,
+        nodeComponent: DefaultTreeNode,
+        containerComponent: DefaultContainer,
+        setStateCallback: ()=>{}
+      }
+      render(<ChkFlow {...state} />)
+      let elem1 = screen?.getByText(/blah5/i);
+      let elem2 = elem1?.closest('.node-container')
+      expect(elem2).not.toHaveTextContent(/blah6/i)
+      expect(elem2).not.toHaveTextContent(/blah7/i)
     })
 })

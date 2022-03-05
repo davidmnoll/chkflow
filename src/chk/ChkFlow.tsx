@@ -19,7 +19,7 @@ import {
   dummyEnvironment,
   defaultNodes,
   defaultEnvironment
-} from './Contant'
+} from './Constant'
 import DefaultContainer from './DefaultContainer'
 import DefaultTreeNode from './DefaultTreeNode'
 
