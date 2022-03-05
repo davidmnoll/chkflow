@@ -1,5 +1,5 @@
 
-import * as Types from './types.d' 
+import * as Types from './types' 
 
 
 const dummyNodes = {
