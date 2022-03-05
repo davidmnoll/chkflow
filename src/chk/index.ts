@@ -6,5 +6,7 @@ export type {
     ChkFlowNode,
     ChkFlowState,
     ChkFlowEnvironment,
-    ChkFlowNodes
+    ChkFlowNodes,
+    NodePath,
+    PathElem
 } from "./types.d"

@@ -1,7 +1,7 @@
 import { render, fireEvent, waitFor, screen, queryByAttribute, queryByText } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 import userEvent from '@testing-library/user-event'
-import ChkFlow from '../src/chk/ChkFlow'
+import ChkFlow from '../chk/ChkFlow'
 import type {
   ChkFlowSettings,
   ChkFlowState,
@@ -9,9 +9,9 @@ import type {
   ChkFlowNodes,
   PathElem,
   NodePath
-} from '../src/chk'
-import DefaultTreeNode from '../src/chk/DefaultTreeNode'
-import DefaultContainer from '../src/chk/DefaultContainer'
+} from '../chk'
+import DefaultTreeNode from '../chk/DefaultTreeNode'
+import DefaultContainer from '../chk/DefaultContainer'
 
 
 const l1 = {

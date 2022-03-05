@@ -5,7 +5,7 @@ import { getVisuallyNextNodePath,
     moveUnderParent,
     getSubs,
     moveUnderPreviousNode
-} from '../src/chk/Utils'
+} from '../chk/Utils'
 import type {
     ChkFlowSettings,
     ChkFlowState,
@@ -13,10 +13,10 @@ import type {
     ChkFlowNodes,
     PathElem,
     NodePath
-} from '../src/chk'
-import ChkFlow from '../src/chk/ChkFlow'
-import DefaultTreeNode from '../src/chk/DefaultTreeNode'
-import DefaultContainer from '../src/chk/DefaultContainer'
+} from '../chk'
+import ChkFlow from '../chk/ChkFlow'
+import DefaultTreeNode from '../chk/DefaultTreeNode'
+import DefaultContainer from '../chk/DefaultContainer'
 import * as R from 'ramda'
 
 const l1 = {
