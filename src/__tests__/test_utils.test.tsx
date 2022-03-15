@@ -17,7 +17,6 @@ import type {
 import ChkFlow from '../chk/ChkFlow'
 import DefaultTreeNode from '../chk/DefaultTreeNode'
 import DefaultContainer from '../chk/DefaultContainer'
-import * as R from 'ramda'
 
 const l1 = {
     '0' : { text: 'blah0', rel: {'child': ['1','3']}, isCollapsed: false },
