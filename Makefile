@@ -5,7 +5,7 @@ test:
 	npm run test
 
 package:
-	# npm run test
+	npm run test
 	npx rollup -c
 
 publish:

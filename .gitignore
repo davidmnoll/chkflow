@@ -26,3 +26,4 @@ yarn-error.log*
 # stryker temp files
 .stryker-tmp
 reports/*
+.vscode
