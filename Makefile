@@ -5,11 +5,12 @@ test:
 	npm run test
 
 package:
-	npm run test
+	# npm run test
 	npx rollup -c
 
 publish:
 	npm uninstall react
 	make package
 	npm publish --access public
-	npm install react
+	npm i -D react@17.0.2
+

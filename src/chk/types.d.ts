@@ -22,10 +22,12 @@ interface ChkFlowState extends ChkFlowOptions {
 type ChkFlowOptions = {
     nodeComponent: TreeNodeComponent;
     containerComponent: ContainerComponent;
+    execWindowComponent?: ExecWindowComponent;
     defaultNodes: ChkFlowNodes;
     defaultEnvironment: ChkFlowEnvironment;
     setStateCallback: (state: ChkFlowState)=> void;
     showDummies: boolean;
+    execEnabled: boolean;
 }
 
 type ChkFlowEnvironment = {
@@ -39,7 +41,11 @@ type NodeId = string
 type PathElem = {rel: string, id: NodeId}
 type NodePath = [PathElem, ...PathElem[]]
 
-
+interface ComponentData {
+    type: string;
+    children?: ComponentData[];
+    contents?: string;
+}
 
 type ChkFlowNodes = { 
     '0': ChkFlowNode, 
@@ -50,6 +56,9 @@ type ChkFlowNodes = {
 interface ChkFlowNode extends BaseNodeInfo{
     rel: { 
         [key:string]: NodeId[]
+    },
+    data: { 
+        [key:string]: any
     },
 }
 
@@ -89,28 +98,50 @@ interface ContainerProps {
     environment: ChkFlowEnvironment;
     nodes: ChkFlowNodes;
     children: TreeNodeComponent[];
+    path : NodePath;
     setPath: (path: NodePath) => void;
     resetNodes: () => void;
+    getNodeInfo: (path: NodePath) => Maybe<ChkFlowNode>;
+    getRelNodeInfo: (path: NodePath) => Maybe<ChkFlowNode>;
+    evaluateNode : (nodeData: ChkFlowNode, relNodeData: ChkFlowNode) => Either<any, Error>;
+}
+
+
+interface ExecWindowProps {
+    environment: ChkFlowEnvironment;
+    path : NodePath;
+    getNodeInfo: (path: NodePath) => Maybe<ChkFlowNode>;
+    getRelNodeInfo: (path: NodePath) => Maybe<ChkFlowNode>;
+    evaluateNode : (nodeData: ChkFlowNode, relNodeData: ChkFlowNode) => Either<any, Error>;
 }
 
 
 type TreeNodeComponent = React.FC<TreeNodeProps> | React.Component<TreeNodeProps>
 type ContainerComponent = React.FC<ContainerProps> | React.Component<ContainerProps>
+type ExecWindowComponent = React.FC<ExecWindowProps> | React.Component<ExecWindowProps>
 
+
+interface DisplayNodeProps {
+    nodeData: ChkFlowNode;
+}
 
 
 
 
 export type {
+    ExecWindowProps,
+    DisplayNodeProps,
     ChkFlowState,
     ChkFlowSettings,
     ChkFlowEnvironment,
     ChkFlowNodes,
     ChkFlowNode,
+    ComponentData,
     TreeNodeProps,
     ContainerProps,
     ContainerComponent,
     TreeNodeComponent,
+    ExecWindowComponent,
     NodeId,
     PathElem,
     NodePath,

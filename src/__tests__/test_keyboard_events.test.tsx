@@ -10,19 +10,19 @@ import type {
   PathElem,
   NodePath
 } from '../chk'
-import DefaultTreeNode from '../chk/DefaultTreeNode'
-import DefaultContainer from '../chk/DefaultContainer'
+import DefaultTreeNode from '../chk/default/DefaultTreeNode'
+import DefaultContainer from '../chk/default/DefaultContainer'
 
 
 const l1 = {
-  '0' : { text: 'blah0', rel: {'child': ['1','3']}, isCollapsed: false },
-  '1' : { text: 'blah1', rel: {'child': ['5', '2']}, isCollapsed: false  },
-  '2' : { text: 'blah2', rel: {'child': ['4']}, isCollapsed: false  },
-  '3' : { text: 'blah3', rel: {'child': []}, isCollapsed: false  },
-  '4' : { text: 'blah4', rel: {'child': []}, isCollapsed: false  },
-  '5' : { text: 'blah5', rel: {'child': ['6','7']}, isCollapsed: false  },
-  '6' : { text: 'blah6', rel: {'child': []}, isCollapsed: false  },
-  '7' : { text: 'blah7', rel: {'child': []}, isCollapsed: false  },
+  '0' : { text: 'blah0', rel: {'child': ['1','3']}, data: {}, isCollapsed: false },
+  '1' : { text: 'blah1', rel: {'child': ['5', '2']}, data: {}, isCollapsed: false  },
+  '2' : { text: 'blah2', rel: {'child': ['4']}, data: {}, isCollapsed: false  },
+  '3' : { text: 'blah3', rel: {'child': []}, data: {}, isCollapsed: false  },
+  '4' : { text: 'blah4', rel: {'child': []}, data: {}, isCollapsed: false  },
+  '5' : { text: 'blah5', rel: {'child': ['6','7']}, data: {}, isCollapsed: false  },
+  '6' : { text: 'blah6', rel: {'child': []}, data: {}, isCollapsed: false  },
+  '7' : { text: 'blah7', rel: {'child': []}, data: {}, isCollapsed: false  },
 }
 
 let environment = {
@@ -37,7 +37,8 @@ let state: ChkFlowState = {
   showDummies: false,
   nodeComponent: DefaultTreeNode,
   containerComponent: DefaultContainer,
-  setStateCallback: ()=>{}
+  setStateCallback: ()=>{}, 
+  execEnabled: false,
 }
 function cursorIsAtEnd(element: HTMLDivElement): boolean{
   let selection = document.getSelection();
@@ -53,7 +54,7 @@ describe('handling keyboard events properly', ()=>{
 
   it('adds node below when pressing enter', async () => {
       let dom = render(<ChkFlow {...state} />)
-
+      let screen = dom;
       let elem5parent = screen?.getByText(/blah5/i)?.parentElement?.parentElement
       let elem5Children = elem5parent?.querySelector('.node-children');
       expect(elem5Children?.childElementCount).toEqual(2)
@@ -69,6 +70,7 @@ describe('handling keyboard events properly', ()=>{
   it.skip('focuses & puts cursor in previous node when press up arrow', async ()=>{
     // Need to rewrite this because functionality works fine
     let dom = render(<ChkFlow {...state} />)
+    let screen = dom;
     let elem6tail = screen?.getByText(/blah6/i);
     let elem7tail = screen?.getByText(/blah7/i);
     fireEvent.click(elem7tail as HTMLDivElement)
@@ -83,6 +85,7 @@ describe('handling keyboard events properly', ()=>{
   it.skip('focuses & puts cursor in next node when press down arrow', async ()=>{
     // Need to rewrite this because functionality works fine
     let dom = render(<ChkFlow {...state} />)
+    let screen = dom;
     let elem6tail = screen?.getByText(/blah6/i);
     let elem7tail = screen?.getByText(/blah7/i);
     fireEvent.click(elem6tail as HTMLDivElement)

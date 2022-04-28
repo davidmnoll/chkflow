@@ -13,6 +13,7 @@ import {
   focusOnPath,
 } from './Utils'
 import { Maybe, Just, Nothing } from 'purify-ts/Maybe'
+import { Either, Left, Right } from 'purify-ts/Either'
 
 import {
   dummyNodes,
@@ -20,8 +21,10 @@ import {
   defaultNodes,
   defaultEnvironment
 } from './Constant'
-import DefaultContainer from './DefaultContainer'
-import DefaultTreeNode from './DefaultTreeNode'
+import DefaultContainer from './default/DefaultContainer'
+import DefaultTreeNode from './default/DefaultTreeNode'
+import ExecContainer from './exec/ExecContainer'
+import ExecTreeNode from './exec/ExecTreeNode'
 
 //Todo: make generic & use generics for storing info etc.
 class ChkFlow extends React.Component<Partial<Types.ChkFlowState>, Types.ChkFlowState> { 
@@ -31,16 +34,17 @@ class ChkFlow extends React.Component<Partial<Types.ChkFlowState>, Types.ChkFlow
     const rootPath: Types.NodePath = [{id:'0', rel:'root'}];
 
     let state = {
-      nodeComponent: props.nodeComponent || DefaultTreeNode, // or DefaultTreeNode
-      containerComponent: props.containerComponent || DefaultContainer,
+      execEnabled: props.execEnabled !== undefined ? props.execEnabled : false,
+      nodeComponent: props.nodeComponent || props.execEnabled ? ExecTreeNode : DefaultTreeNode, // or DefaultTreeNode
+      containerComponent: props.containerComponent || props.execEnabled ? ExecContainer : DefaultContainer,
       showDummies: ( props.showDummies !== undefined ) ? props.showDummies : false, 
       defaultEnvironment: props.showDummies ? dummyEnvironment : {
         homePath: [{id:'0', rel:'root'}] as Types.NodePath,
         activeNode: null,
       },
       defaultNodes: props.showDummies ? dummyNodes : {
-        '0' : { text: '[root] (you should not be seeing this)', rel: {'child': ['1']}, isCollapsed: false },
-        '1' : { text: '', rel: {'child': []}, isCollapsed: false  },
+        '0' : { text: '[root] (you should not be seeing this)', rel: {'child': ['1']}, data:{}, isCollapsed: false },
+        '1' : { text: '', rel: {'child': []}, data:{}, isCollapsed: false  },
       },
       setStateCallback: props.setStateCallback ? props.setStateCallback : ()=>{},
     }
@@ -81,7 +85,12 @@ class ChkFlow extends React.Component<Partial<Types.ChkFlowState>, Types.ChkFlow
 
   getNodeInfo(path: Types.NodePath): Maybe<Types.ChkFlowNode> {
     let maybeLastElem = pathCurrentLast(this.state, path)
-    return maybeLastElem.map((x: Types.PathElem) => this.state.nodes[x.id])
+    return maybeLastElem.chainNullable((x: Types.PathElem) => this.state.nodes[x.id])
+  }
+
+  getRelNodeInfo(path: Types.NodePath): Maybe<[String, Types.ChkFlowNode]> {
+    let maybeLastElem = pathCurrentLast(this.state, path)
+    return maybeLastElem.chainNullable((x: Types.PathElem) => this.state.nodes[x.rel] !== undefined ? [x.rel, this.state.nodes[x.rel]] : null)
   }
 
   updateNode(path: Types.NodePath, data: Types.ChkFlowNode ){
@@ -172,6 +181,16 @@ class ChkFlow extends React.Component<Partial<Types.ChkFlowState>, Types.ChkFlow
     })
   }
 
+  evaluateNode(nodeInfo: Types.ChkFlowNode, relNodeInfo: Types.ChkFlowNode) : any{
+    // const instruction = getInstruction(relNodeInfo)
+    // const result = instruction({, this.state.environment)
+    // Object.entries(nodeInfo.rel).map( ([rel, memebers]: [string, string[]] ) => {
+
+    // })
+    // console.log('evaluate', nodeInfo, relNodeInfo)
+    // return result
+    return null
+  }
 
 
   renderNodeChildren(path :Types.NodePath): Maybe<React.ReactNode[]>{
@@ -219,6 +238,10 @@ class ChkFlow extends React.Component<Partial<Types.ChkFlowState>, Types.ChkFlow
             nodes={this.state.nodes}
             setPath={this.setHomePath.bind(this)}
             resetNodes={this.resetNodes.bind(this)}
+            path={this.state.environment.homePath}
+            getNodeInfo={this.getNodeInfo.bind(this)}
+            getRelNodeInfo={this.getRelNodeInfo.bind(this)}
+            evaluateNode={this.evaluateNode.bind(this)}
             >
             {this.getNodeTree(this.state.environment.homePath, false).extractNullable()}
           </ContainerDisplay>  

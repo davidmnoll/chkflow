@@ -15,49 +15,49 @@ import type {
     NodePath
 } from '../chk'
 import ChkFlow from '../chk/ChkFlow'
-import DefaultTreeNode from '../chk/DefaultTreeNode'
-import DefaultContainer from '../chk/DefaultContainer'
+import DefaultTreeNode from '../chk/default/DefaultTreeNode'
+import DefaultContainer from '../chk/default/DefaultContainer'
 
 const l1 = {
-    '0' : { text: 'blah0', rel: {'child': ['1','3']}, isCollapsed: false },
-    '1' : { text: 'blah1', rel: {'child': ['5', '2']}, isCollapsed: false  },
-    '2' : { text: 'blah2', rel: {'child': ['4']}, isCollapsed: false  },
-    '3' : { text: 'blah3', rel: {'child': []}, isCollapsed: false  },
-    '4' : { text: 'blah4', rel: {'child': []}, isCollapsed: false  },
-    '5' : { text: 'blah5', rel: {'child': ['6','7']}, isCollapsed: false  },
-    '6' : { text: 'blah6', rel: {'child': []}, isCollapsed: false  },
-    '7' : { text: 'blah7', rel: {'child': []}, isCollapsed: false  },
+    '0' : { text: 'blah0', rel: {'child': ['1','3']}, data: {},  isCollapsed: false },
+    '1' : { text: 'blah1', rel: {'child': ['5', '2']}, data: {}, isCollapsed: false  },
+    '2' : { text: 'blah2', rel: {'child': ['4']}, data: {}, isCollapsed: false  },
+    '3' : { text: 'blah3', rel: {'child': []}, data: {}, isCollapsed: false  },
+    '4' : { text: 'blah4', rel: {'child': []}, data: {}, isCollapsed: false  },
+    '5' : { text: 'blah5', rel: {'child': ['6','7']}, data: {}, isCollapsed: false  },
+    '6' : { text: 'blah6', rel: {'child': []}, data: {}, isCollapsed: false  },
+    '7' : { text: 'blah7', rel: {'child': []}, data: {}, isCollapsed: false  },
 }
 
 const l2 = {
-    '0' : { text: 'blah0', rel: {'child': ['1','3']}, isCollapsed: false },
-    '1' : { text: 'blah1', rel: {'child': ['5', '2']}, isCollapsed: false  },
-    '2' : { text: 'blah2', rel: {'child': ['4']}, isCollapsed: false  },
-    '3' : { text: 'blah3', rel: {'child': []}, isCollapsed: false  },
-    '4' : { text: 'blah4', rel: {'child': []}, isCollapsed: false  },
-    '5' : { text: 'blah5', rel: {'child': ['6','7']}, isCollapsed: false  },
-    '6' : { text: 'blah6', rel: {'child': []}, isCollapsed: false  },
-    '7' : { text: 'blah7', rel: {'child': []}, isCollapsed: false  },
+    '0' : { text: 'blah0', rel: {'child': ['1','3']}, data: {}, isCollapsed: false },
+    '1' : { text: 'blah1', rel: {'child': ['5', '2']}, data: {}, isCollapsed: false  },
+    '2' : { text: 'blah2', rel: {'child': ['4']}, data: {}, isCollapsed: false  },
+    '3' : { text: 'blah3', rel: {'child': []}, data: {}, isCollapsed: false  },
+    '4' : { text: 'blah4', rel: {'child': []}, data: {}, isCollapsed: false  },
+    '5' : { text: 'blah5', rel: {'child': ['6','7']}, data: {}, isCollapsed: false  },
+    '6' : { text: 'blah6', rel: {'child': []}, data: {}, isCollapsed: false  },
+    '7' : { text: 'blah7', rel: {'child': []}, data: {}, isCollapsed: false  },
 }
 const l3 = {
-    '0' : { text: 'blah0', rel: {'child': ['1','3']}, isCollapsed: false },
-    '1' : { text: 'blah1', rel: {'child': ['5','6','2']}, isCollapsed: false  },
-    '2' : { text: 'blah2', rel: {'child': ['4']}, isCollapsed: false  },
-    '3' : { text: 'blah3', rel: {'child': []}, isCollapsed: false  },
-    '4' : { text: 'blah4', rel: {'child': []}, isCollapsed: false  },
-    '5' : { text: 'blah5', rel: {'child': ['7']}, isCollapsed: false  },
-    '6' : { text: 'blah6', rel: {'child': []}, isCollapsed: false  },
-    '7' : { text: 'blah7', rel: {'child': []}, isCollapsed: false  },
+    '0' : { text: 'blah0', rel: {'child': ['1','3']}, data: {}, isCollapsed: false },
+    '1' : { text: 'blah1', rel: {'child': ['5','6','2']}, data: {}, isCollapsed: false  },
+    '2' : { text: 'blah2', rel: {'child': ['4']}, data: {}, isCollapsed: false  },
+    '3' : { text: 'blah3', rel: {'child': []}, data: {}, isCollapsed: false  },
+    '4' : { text: 'blah4', rel: {'child': []}, data: {}, isCollapsed: false  },
+    '5' : { text: 'blah5', rel: {'child': ['7']}, data: {}, isCollapsed: false  },
+    '6' : { text: 'blah6', rel: {'child': []}, data: {}, isCollapsed: false  },
+    '7' : { text: 'blah7', rel: {'child': []}, data: {}, isCollapsed: false  },
 }
 const l4 = {
-    '0' : { text: 'blah0', rel: {'child': ['1','3']}, isCollapsed: false },
-    '1' : { text: 'blah1', rel: {'child': ['5', '2']}, isCollapsed: false  },
-    '2' : { text: 'blah2', rel: {'child': ['4']}, isCollapsed: false  },
-    '3' : { text: 'blah3', rel: {'child': []}, isCollapsed: false  },
-    '4' : { text: 'blah4', rel: {'child': []}, isCollapsed: false  },
-    '5' : { text: 'blah5', rel: {'child': ['7','6']}, isCollapsed: false  },
-    '6' : { text: 'blah6', rel: {'child': []}, isCollapsed: false  },
-    '7' : { text: 'blah7', rel: {'child': []}, isCollapsed: false  },
+    '0' : { text: 'blah0', rel: {'child': ['1','3']}, data: {}, isCollapsed: false },
+    '1' : { text: 'blah1', rel: {'child': ['5', '2']}, data: {}, isCollapsed: false  },
+    '2' : { text: 'blah2', rel: {'child': ['4']}, data: {}, isCollapsed: false  },
+    '3' : { text: 'blah3', rel: {'child': []}, data: {}, isCollapsed: false  },
+    '4' : { text: 'blah4', rel: {'child': []}, data: {}, isCollapsed: false  },
+    '5' : { text: 'blah5', rel: {'child': ['7','6']}, data: {}, isCollapsed: false  },
+    '6' : { text: 'blah6', rel: {'child': []}, data: {}, isCollapsed: false  },
+    '7' : { text: 'blah7', rel: {'child': []}, data: {}, isCollapsed: false  },
 }
 
 let environment1 = {
@@ -81,7 +81,8 @@ let state1: ChkFlowState = {
     showDummies: false,
     nodeComponent: DefaultTreeNode,
     containerComponent: DefaultContainer,
-    setStateCallback: ()=>{}
+    setStateCallback: ()=>{}, 
+    execEnabled: false,
 }
 let state2: ChkFlowState = {
     environment: environment2,
@@ -91,7 +92,8 @@ let state2: ChkFlowState = {
     showDummies: false,
     nodeComponent: DefaultTreeNode,
     containerComponent: DefaultContainer,
-    setStateCallback: ()=>{}
+    setStateCallback: ()=>{}, 
+    execEnabled: false,
 }
 let state3: ChkFlowState = {
     environment: environment3,
@@ -101,8 +103,10 @@ let state3: ChkFlowState = {
     showDummies: false,
     nodeComponent: DefaultTreeNode,
     containerComponent: DefaultContainer,
-    setStateCallback: ()=>{}
+    setStateCallback: ()=>{}, 
+    execEnabled: false,
 }
+
 let state4: ChkFlowState = {
     environment: environment2,
     nodes: l3,
@@ -111,7 +115,8 @@ let state4: ChkFlowState = {
     showDummies: false,
     nodeComponent: DefaultTreeNode,
     containerComponent: DefaultContainer,
-    setStateCallback: ()=>{}
+    setStateCallback: ()=>{}, 
+    execEnabled: false,
 }
 
 let state5: ChkFlowState = {
@@ -122,8 +127,11 @@ let state5: ChkFlowState = {
     showDummies: false,
     nodeComponent: DefaultTreeNode,
     containerComponent: DefaultContainer,
-    setStateCallback: ()=>{}
+    setStateCallback: ()=>{}, 
+    execEnabled: false,
+ 
 }
+
 let state6: ChkFlowState = {
     environment: environment2,
     nodes: l4,
@@ -132,7 +140,8 @@ let state6: ChkFlowState = {
     showDummies: false,
     nodeComponent: DefaultTreeNode,
     containerComponent: DefaultContainer,
-    setStateCallback: ()=>{}
+    setStateCallback: ()=>{}, 
+    execEnabled: false,
 }
 
 

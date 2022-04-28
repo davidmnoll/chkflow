@@ -1,5 +1,5 @@
 import * as React from 'react'
-import * as Types from './types.d'
+import * as Types from '../types'
 import styled from 'styled-components'
 import * as R from 'ramda'
 
@@ -13,48 +13,77 @@ import {
   
  } from '@material-ui/icons';
 
+const OuterContainer = styled.div`
+  & {
+    width: 96%;
+    height: 96%;
+    margin: 2%; 
+    min-height: 96%;
+    box-sizing: border-box;
+  }`;
 
- const HeaderContainer = styled.div`
+const MainContainer = styled.div`
+  & {
+    width: 96%;
+    height: 96%;
+    margin: 2%; 
+  }`;
 
- & {
-   // border: 1px solid black;
-   display: flex;
-   flex-direction: row;
-   font-size: 24px;
-   padding: 5px;
-   align-items: center;
- }
+const HeaderContainer = styled.div`
 
- &>div.history {
-   min-width: 200px;
-   display: flex;
-   flex-direction: row;
-   align-items: center;
-   vertical-align: middle;
+  & {
+    // border: 1px solid black;
+    display: flex;
+    flex-direction: row;
+    font-size: 24px;
+    padding: 5px;
+  }
 
- }
+  & header-container {
+    justify-content: space-between;
+    width: 100%;
+  }
 
- &>div.history svg{
-   vertical-align: middle;
- }
- &>div.history.node-link {
-   vertical-align: middle;
-   padding: 0px;
-   font-size: 20px;
-   color: rgba(33,33,33,1);
-   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
- }
- &>div.home-node-button {
-   vertical-align: middle;
- }
+  &>div.history {
+    min-width: 200px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    vertical-align: middle;
 
- `;
+  }
+
+  &>div.history svg{
+    vertical-align: middle;
+  }
+
+  &>div.cancel-button{
+    align-self: flex-end;
+  }
+
+  &>div.history.node-link {
+    vertical-align: middle;
+    padding: 0px;
+    font-size: 20px;
+    color: rgba(33,33,33,1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  &>div.home-node-button {
+    vertical-align: middle;
+  }
+  & .nodes-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+  }
+
+  `;
 
 //Todo: create default header
 
 const DefaultContainer = (props: Types.ContainerProps) => { 
   
-  console.log(props.environment)
   const relevantNodes = R.tail(props.environment.homePath as Types.NodePath); // Nodes except the root, which should be hidden
   const history = relevantNodes.map((value: Types.PathElem , index:number)=>{
     let nodeId = value.id;
@@ -71,8 +100,8 @@ const DefaultContainer = (props: Types.ContainerProps) => {
 
 
   return (
-    <div className="chkflow-container">
-      <div className="chkflow-main">
+    <OuterContainer className="chkflow-container">
+      <MainContainer className="chkflow-main">
         <HeaderContainer className="header-container">
           {/* <FontAwesomeIcon icon={faArrowAltCircleLeft} /> */}
           {/* <div className="back-button">
@@ -94,8 +123,8 @@ const DefaultContainer = (props: Types.ContainerProps) => {
         <div className="nodes-container">
           {props.children}
         </div>
-      </div>
-    </div>
+      </MainContainer>
+    </OuterContainer>
   )
 }
 

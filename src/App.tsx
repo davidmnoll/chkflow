@@ -44,7 +44,8 @@ function App() {
     setStateCallback: setStateCallback,
     nodes: nodes as ChkFlowNodes,
     environment: environment as ChkFlowEnvironment,
-    showDummies: true
+    showDummies: true,
+    execEnabled: true,
   }  
 
 

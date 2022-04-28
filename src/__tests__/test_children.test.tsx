@@ -1,8 +1,8 @@
 import { render, fireEvent, waitFor, screen } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 import ChkFlow from '../chk/ChkFlow'
-import DefaultTreeNode from '../chk/DefaultTreeNode'
-import DefaultContainer from '../chk/DefaultContainer'
+import DefaultTreeNode from '../chk/default/DefaultTreeNode'
+import DefaultContainer from '../chk/default/DefaultContainer'
 import type {
   ChkFlowSettings,
   ChkFlowState,
@@ -13,25 +13,25 @@ import type {
 } from '../chk'
 
 const l1 = {
-    '0' : { text: 'blah0', rel: {'child': ['1','3']}, isCollapsed: false },
-    '1' : { text: 'blah1', rel: {'child': ['5', '2']}, isCollapsed: false  },
-    '2' : { text: 'blah2', rel: {'child': ['4']}, isCollapsed: false  },
-    '3' : { text: 'blah3', rel: {'child': []}, isCollapsed: false  },
-    '4' : { text: 'blah4', rel: {'child': []}, isCollapsed: false  },
-    '5' : { text: 'blah5', rel: {'child': ['6','7']}, isCollapsed: false  },
-    '6' : { text: 'blah6', rel: {'child': []}, isCollapsed: false  },
-    '7' : { text: 'blah7', rel: {'child': []}, isCollapsed: false  },
+    '0' : { text: 'blah0', rel: {'child': ['1','3']}, data: {}, isCollapsed: false },
+    '1' : { text: 'blah1', rel: {'child': ['5', '2']}, data: {}, isCollapsed: false  },
+    '2' : { text: 'blah2', rel: {'child': ['4']}, data: {}, isCollapsed: false  },
+    '3' : { text: 'blah3', rel: {'child': []}, data: {}, isCollapsed: false  },
+    '4' : { text: 'blah4', rel: {'child': []}, data: {}, isCollapsed: false  },
+    '5' : { text: 'blah5', rel: {'child': ['6','7']}, data: {}, isCollapsed: false  },
+    '6' : { text: 'blah6', rel: {'child': []}, data: {}, isCollapsed: false  },
+    '7' : { text: 'blah7', rel: {'child': []}, data: {}, isCollapsed: false  },
   }
 
   const l2 = {
-    '0' : { text: 'blah0', rel: {'child': ['1','3']}, isCollapsed: false },
-    '1' : { text: 'blah1', rel: {'child': ['5', '2']}, isCollapsed: false  },
-    '2' : { text: 'blah2', rel: {'child': ['4']}, isCollapsed: false  },
-    '3' : { text: 'blah3', rel: {'child': []}, isCollapsed: false  },
-    '4' : { text: 'blah4', rel: {'child': []}, isCollapsed: false  },
-    '5' : { text: 'blah5', rel: {'child': ['6','7']}, isCollapsed: true  },
-    '6' : { text: 'blah6', rel: {'child': []}, isCollapsed: false  },
-    '7' : { text: 'blah7', rel: {'child': []}, isCollapsed: false  },
+    '0' : { text: 'blah0', rel: {'child': ['1','3']}, data: {}, isCollapsed: false },
+    '1' : { text: 'blah1', rel: {'child': ['5', '2']}, data: {}, isCollapsed: false  },
+    '2' : { text: 'blah2', rel: {'child': ['4']}, data: {}, isCollapsed: false  },
+    '3' : { text: 'blah3', rel: {'child': []}, data: {}, isCollapsed: false  },
+    '4' : { text: 'blah4', rel: {'child': []}, data: {}, isCollapsed: false  },
+    '5' : { text: 'blah5', rel: {'child': ['6','7']}, data: {}, isCollapsed: true  },
+    '6' : { text: 'blah6', rel: {'child': []}, data: {}, isCollapsed: false  },
+    '7' : { text: 'blah7', rel: {'child': []}, data: {}, isCollapsed: false  },
   }
 
 
@@ -47,7 +47,8 @@ const l1 = {
     showDummies: false,
     nodeComponent: DefaultTreeNode,
     containerComponent: DefaultContainer,
-    setStateCallback: ()=>{}
+    setStateCallback: ()=>{}, 
+    execEnabled: false
   }
 describe('rendering children properly', ()=>{
 
@@ -75,7 +76,8 @@ describe('rendering children properly', ()=>{
         showDummies: false,
         nodeComponent: DefaultTreeNode,
         containerComponent: DefaultContainer,
-        setStateCallback: ()=>{}
+        setStateCallback: ()=>{},
+        execEnabled: false
       }
       render(<ChkFlow {...state} />)
       let elem1 = screen?.getByText(/blah5/i);

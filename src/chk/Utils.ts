@@ -378,7 +378,7 @@ function newChildUnderThisNode(state: Types.ChkFlowState, path: Types.NodePath):
   let pathInit: Types.NodePath = [...path]
   let pathLast = pathInit.pop()
   const newSubId = getNewId(state);
-  const defaults = { text: '', rel: {'child':[]}, isCollapsed: false  }
+  const defaults = { text: '', rel: {'child':[]}, data: {}, isCollapsed: false  }
   let maybeCurr = pathCurrentLast(state, path)
   let maybeResult = maybeCurr.chain( (current: Types.PathElem) : Maybe<[Types.NodePath, Types.ChkFlowState]> => {
     let maybeResultInner  = pathParent(state, path).map( (parentList: Types.NodePath): [Types.NodePath, Types.ChkFlowState] => {

@@ -1,6 +1,6 @@
 
 import React from 'react'
-import type * as Types from './types' 
+import type * as Types from '../types' 
 import styled from 'styled-components'
 import * as R from 'ramda'
 import { AddBox, 
