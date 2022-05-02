@@ -1,6 +1,6 @@
 import * as Types from './types.d' 
 import * as R from 'ramda'
-import { Maybe } from 'purify-ts/Maybe'
+import { Just, Maybe } from 'purify-ts/Maybe'
 
 
 function pathValid(state:Types.ChkFlowState, path: Types.NodePath ): Maybe<Types.NodePath> {
@@ -113,6 +113,19 @@ function moveNodeRel(state: Types.ChkFlowState, oldPath: Types.NodePath, newPath
   return changedState
 }
 
+function changeRelType(state: Types.ChkFlowState, oldPath: Types.NodePath, relId: Types.NodeId): Maybe<Types.ChkFlowState>{
+  console.log('changeRelType', oldPath, relId);
+  let changedState = pathCurrent(state, oldPath).chain( path => {
+    let lastElem = path.pop() as Types.PathElem;
+    let newPath = [...path, {id: lastElem.id, rel: relId}] as Types.NodePath
+    return delNodeRel(state, oldPath).chain( (delState : Types.ChkFlowState) =>{
+      console.log(delState)
+      return newRel(delState, newPath)
+    })  
+  })
+  return changedState
+}
+
 function newRel(state:Types.ChkFlowState, path: Types.NodePath): Maybe<Types.ChkFlowState>{
 
   return pathCurrent(state, path).chain( x =>{
@@ -129,7 +142,7 @@ function newRel(state:Types.ChkFlowState, path: Types.NodePath): Maybe<Types.Chk
             ...state.nodes[y_last.id], 
             rel: {
               ...state.nodes[y_last.id].rel, 
-              [x_last.rel]: [...state.nodes[y_last.id].rel[x_last.rel], x_last.id] 
+              [x_last.rel]: [...(state.nodes[y_last.id].rel[x_last.rel] || []), x_last.id] 
             } 
           },
         }
@@ -219,6 +232,7 @@ function delArrayPrefix(a1original: any[], a2original: any[]){
 function getSubs(state: Types.ChkFlowState, path: Types.NodePath): Maybe<Types.NodePath[]>{
   return pathCurrent(state, path).chain( curr => {
     let curr_last = R.last(curr) as Types.PathElem //Making sure this is possible in pathParent
+    console.log('getSubs', state.nodes)
     let subarray = Object.keys(state.nodes[curr_last.id].rel).filter((id: Types.NodeId)=> state.nodes[id] !== undefined || id == 'child').map((childRel: Types.NodeId, index: number) => {
       return state.nodes[curr_last.id].rel[childRel].filter( (childRelElem: Types.NodeId)=> state.nodes[childRelElem] !== undefined ).map((childId: Types.NodeId, index: number)=> {
         return ([...path, {rel: childRel,id: childId}] as Types.NodePath) 
@@ -228,7 +242,90 @@ function getSubs(state: Types.ChkFlowState, path: Types.NodePath): Maybe<Types.N
   })
 }
 
+function getIdFromPath(path: Types.NodePath): Types.NodeId{
+  const last = path[path.length-1] as Types.PathElem
+  return last.id 
+}
 
+function getRelFromPath(path: Types.NodePath): Types.NodeId{
+  const last = path[path.length-1] as Types.PathElem
+  return last.rel
+}
+
+
+function addPath(state: Types.ChkFlowState, path: Types.NodePath): Maybe<Types.ChkFlowState>{
+  return pathCurrent(state, path).chain( curr => {
+    return pathParent(state, curr).map( parent => {
+      const parentId = getIdFromPath(parent)
+      const currentRel = getRelFromPath(curr)
+      const newState = {
+        ...state,
+        nodes: {
+          ...state.nodes,
+          [parentId]: {
+            ...state.nodes[parentId],
+            rel: {
+              ...state.nodes[parentId].rel,
+              [currentRel]: [...(state.nodes[parentId].rel[currentRel] || []), getIdFromPath(curr)]
+            }
+          }
+        }
+      }
+      console.log('addPath', path, state, newState)
+      return newState
+    })
+  })
+}
+
+function removePath(state: Types.ChkFlowState, path: Types.NodePath): Maybe<Types.ChkFlowState>{
+  return pathCurrent(state, path).chain( curr => {
+    return pathParent(state, curr).map( parent => {
+      const parentId = getIdFromPath(parent)
+      const currentRel = getRelFromPath(curr)
+      const currentId = getIdFromPath(curr)
+      const relArray = (state.nodes[parentId].rel[currentRel] || [])
+      const lastInstance = relArray.reduce((acc, elem, index) => elem === currentId ? index : acc, 0)
+      const newArray = [...relArray]
+      newArray.splice(lastInstance, 1)
+      console.log("remove path new array", relArray, lastInstance,  newArray)
+      const newState = {
+        ...state,
+        nodes: {
+          ...state.nodes,
+          [parentId]: {
+            ...state.nodes[parentId],
+            rel: {
+              ...state.nodes[parentId].rel,
+              [currentRel]: newArray
+            }
+          }
+        }
+      }
+      console.log('removePath', path,  state, newState)
+      return newState
+    })
+  })
+}
+
+
+function linkNode(state: Types.ChkFlowState, linkerPath: Types.NodePath, nodeToLink: Types.NodeId ): Maybe<Types.ChkFlowState>{
+  console.log('util Link Node');
+  const maybeLinkedState = pathCurrent(state, linkerPath).chain( curr => {
+    const currFront = [...curr];
+    const oldLast = currFront.pop() as Types.PathElem;
+    const newLast = {rel: oldLast.rel, id: nodeToLink};
+    const newPath = [...currFront, newLast];
+    const newState = addPath(state, newPath)
+    console.log('util Link Node, middle', newState, newPath, linkerPath)
+    return newState
+  }).chain( x => {
+    const removedState = removePath(x, linkerPath)
+    console.log('util Link Node removed state', removedState)
+    return removedState
+  })
+  console.log('util Link Node - END', maybeLinkedState);
+  return maybeLinkedState
+}
 
 function getLastLastVisibleDescendent(state: Types.ChkFlowState, path:Types.NodePath):Maybe<Types.NodePath>{
   if(path.length < 1){
@@ -513,4 +610,6 @@ export {
   pathCurrentLast,
   pathParent,
   pathGrandparent,
+  changeRelType,
+  linkNode
 }

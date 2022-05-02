@@ -11,6 +11,8 @@ import {
   moveUnderParent,
   pathCurrentLast,
   focusOnPath,
+  changeRelType, 
+  linkNode
 } from './Utils'
 import { Maybe, Just, Nothing } from 'purify-ts/Maybe'
 import { Either, Left, Right } from 'purify-ts/Either'
@@ -26,6 +28,12 @@ import DefaultTreeNode from './default/DefaultTreeNode'
 import ExecContainer from './exec/ExecContainer'
 import ExecTreeNode from './exec/ExecTreeNode'
 
+import {
+  dummyExecNodes,
+  dummyExecEnvironment,
+  defaultExecNodes,
+  defaultExecEnvironment
+} from './exec/Constant'
 //Todo: make generic & use generics for storing info etc.
 class ChkFlow extends React.Component<Partial<Types.ChkFlowState>, Types.ChkFlowState> { 
   constructor(props: Partial<Types.ChkFlowState>){
@@ -38,14 +46,15 @@ class ChkFlow extends React.Component<Partial<Types.ChkFlowState>, Types.ChkFlow
       nodeComponent: props.nodeComponent || props.execEnabled ? ExecTreeNode : DefaultTreeNode, // or DefaultTreeNode
       containerComponent: props.containerComponent || props.execEnabled ? ExecContainer : DefaultContainer,
       showDummies: ( props.showDummies !== undefined ) ? props.showDummies : false, 
-      defaultEnvironment: props.showDummies ? dummyEnvironment : {
-        homePath: [{id:'0', rel:'root'}] as Types.NodePath,
-        activeNode: null,
-      },
-      defaultNodes: props.showDummies ? dummyNodes : {
-        '0' : { text: '[root] (you should not be seeing this)', rel: {'child': ['1']}, data:{}, isCollapsed: false },
-        '1' : { text: '', rel: {'child': []}, data:{}, isCollapsed: false  },
-      },
+      ...( props.execEnabled 
+        ? {
+          defaultNodes: props.showDummies ? dummyExecNodes : defaultExecNodes,
+          defaultEnvironment: props.showDummies ? dummyExecEnvironment : defaultExecEnvironment
+        } 
+        : {
+          defaultNodes: props.showDummies ? dummyNodes : defaultNodes,
+          defaultEnvironment: props.showDummies ? dummyEnvironment : defaultEnvironment
+      }),
       setStateCallback: props.setStateCallback ? props.setStateCallback : ()=>{},
     }
 
@@ -56,10 +65,12 @@ class ChkFlow extends React.Component<Partial<Types.ChkFlowState>, Types.ChkFlow
 
 
   setStateAndSave(state: Types.ChkFlowState, callback: Function | null = null){
-    this.setState(state, ()=>{
+    console.log('SETSTATE', state)
+    return this.setState(state, ()=>{
       // this.state.setStateCallback(this.state)
+      console.log('state changed', this.state)
       if(callback !== null){
-        callback(this.state);
+        callback();
       }
     })
 
@@ -88,7 +99,7 @@ class ChkFlow extends React.Component<Partial<Types.ChkFlowState>, Types.ChkFlow
     return maybeLastElem.chainNullable((x: Types.PathElem) => this.state.nodes[x.id])
   }
 
-  getRelNodeInfo(path: Types.NodePath): Maybe<[String, Types.ChkFlowNode]> {
+  getRelNodeInfo(path: Types.NodePath): Maybe<[string, Types.ChkFlowNode]> {
     let maybeLastElem = pathCurrentLast(this.state, path)
     return maybeLastElem.chainNullable((x: Types.PathElem) => this.state.nodes[x.rel] !== undefined ? [x.rel, this.state.nodes[x.rel]] : null)
   }
@@ -109,6 +120,12 @@ class ChkFlow extends React.Component<Partial<Types.ChkFlowState>, Types.ChkFlow
       this.setStateAndSave({...this.state, nodes: {...this.state.nodes, [x.id]: { ...this.state.nodes[x.id], ...data } }})
     })
     return p
+  }
+
+  updatePathRel(path: Types.NodePath, rel: string ){
+    changeRelType(this.state, path, rel).map(
+      newState => this.setStateAndSave(newState)
+    )
   }
   
   setHomePath(path: Types.NodePath){
@@ -172,6 +189,26 @@ class ChkFlow extends React.Component<Partial<Types.ChkFlowState>, Types.ChkFlow
     })
   }
 
+  getNodeLabel(nodeId: Types.NodeId){
+    // eventually use aliases
+    return nodeId;
+  }
+
+  setIsLinking(isLinking: boolean){
+    this.setStateAndSave({...this.state, 
+      environment: {...this.state.environment, isLinking: isLinking }
+    })
+  }
+
+  linkNode(path: Types.NodePath, nodeId: Types.NodeId){
+    console.log('before link', this.state);
+    linkNode(this.state, path, nodeId).map( newState => {
+      console.log('after link before save', newState);
+      this.setStateAndSave(newState, () => {
+        this.setIsLinking(false)
+      }) 
+    })
+  }
   
   // "highlight node"
   setActiveNode(path: Types.NodePath){
@@ -181,20 +218,40 @@ class ChkFlow extends React.Component<Partial<Types.ChkFlowState>, Types.ChkFlow
     })
   }
 
-  evaluateNode(nodeInfo: Types.ChkFlowNode, relNodeInfo: Types.ChkFlowNode) : any{
-    // const instruction = getInstruction(relNodeInfo)
-    // const result = instruction({, this.state.environment)
-    // Object.entries(nodeInfo.rel).map( ([rel, memebers]: [string, string[]] ) => {
+  // evaluateNode(path: Types.NodePath) : any{
+  //   const instructionRelKey = 'instruction';
+  //   const maybeNodeInfo = this.getNodeInfo(path);
+  //   maybeNodeInfo.map((node: Types.ChkFlowNode) => {
+  //     const maybeRelNodeInfo = this.getRelNodeInfo(path);
+  //     const maybeResData = maybeRelNodeInfo.map(([rel, relNode]) => {
+  //       const maybeResult = node.rel[rel].reduce(( acc, item ) => {
+  //         const maybeItem = this.evaluateNode([...path, {id: item, rel: rel}]);
+  //         return maybeItem.map( (itemNodeInfo: any) => {
+  //           return this.applyInstruction(
+  //           relNode,  //probably a better way to do this and make sure it exists
+  //           node
+  //         )});
+  //           }, node.data)
 
-    // })
-    // console.log('evaluate', nodeInfo, relNodeInfo)
-    // return result
-    return null
-  }
+
+  //     };
+  //     this.updateNode(path, {...node, data: {...node.data, rel: {}}})
+  //   })
+
+  //   // const instruction = getInstruction(relNodeInfo)
+  //   // const result = instruction({, this.state.environment)
+  //   // Object.entries(nodeInfo.rel).map( ([rel, memebers]: [string, string[]] ) => {
+
+  //   // })
+  //   // console.log('evaluate', nodeInfo, relNodeInfo)
+  //   // return result
+  //   return null
+  // }
 
 
   renderNodeChildren(path :Types.NodePath): Maybe<React.ReactNode[]>{
     return getSubs(this.state, path).map((x: Types.NodePath[]) => {
+      console.log('renderNodeChildren get subs', x)
       return x.map((y: Types.NodePath) => (this.getNodeTree(y, true).extractNullable()))
     })
   }
@@ -206,6 +263,11 @@ class ChkFlow extends React.Component<Partial<Types.ChkFlowState>, Types.ChkFlow
         const nodeInfo : Types.ChkFlowNode | null = maybeNodeInfo.extractNullable()
         const NodeDisplay = this.state.nodeComponent as React.ElementType
         // console.log('total rels', relations, id, this.state.nodes[id], (Object.keys(relations).length > 0) && true)
+        const thisNodeId = pathCurrentLast(this.state, path).extractNullable()?.id
+        const thisRelKey = pathCurrentLast(this.state, path).extractNullable()?.rel
+        const reduciblePath = path as Types.PathElem[]
+        const isSecondInCycle = reduciblePath.reduce((acc: number, current: Types.PathElem) => ( (current.id === thisNodeId) ? acc + 1 : acc), 0) > 1
+        console.log('render layer', renderLayer)
         if (renderLayer){
           return  (<NodeDisplay
             key={curr.id}
@@ -213,6 +275,8 @@ class ChkFlow extends React.Component<Partial<Types.ChkFlowState>, Types.ChkFlow
             nodePath={[...path]} 
             nodeInfo={nodeInfo}
             activeNode={this.state.environment.activeNode}
+            isLinking={this.state.environment.isLinking}
+            setIsLinking={this.setIsLinking.bind(this)}
             setPath={this.setHomePath.bind(this)}
             setActiveNode={this.setActiveNode.bind(this)}
             moveUnderPreviousNode={this.moveUnderPreviousNode.bind(this)}
@@ -220,8 +284,13 @@ class ChkFlow extends React.Component<Partial<Types.ChkFlowState>, Types.ChkFlow
             newChildUnderThisNode={this.newChildUnderThisNode.bind(this)}
             moveCursorToVisuallyNextNode={this.moveCursorToVisuallyNextNode.bind(this)}
             moveCursorToVisuallyPreviousNode={this.moveCursorToVisuallyPreviousNode.bind(this)}
-            updateNode={this.updateNode.bind(this)}>
-            {nodeInfo?.isCollapsed ? '' : this.renderNodeChildren(path).extractNullable()}
+            updateNode={this.updateNode.bind(this)}
+            updatePathRel={this.updatePathRel.bind(this)}
+            relKeys={Object.keys(this.state.nodes)}
+            linkNode={this.linkNode.bind(this)}
+            relId={thisRelKey}
+            getNodeLabel={this.getNodeLabel.bind(this)}>
+            {nodeInfo?.isCollapsed || isSecondInCycle ? '' : this.renderNodeChildren(path).extractNullable()}
           </NodeDisplay>)
         }else{
           return (nodeInfo?.isCollapsed ? '' : this.renderNodeChildren(path).extractNullable())
@@ -232,6 +301,8 @@ class ChkFlow extends React.Component<Partial<Types.ChkFlowState>, Types.ChkFlow
 
   render (){
     const ContainerDisplay = this.state.containerComponent as React.ElementType;
+    const nodeTree = this.getNodeTree(this.state.environment.homePath, false).extractNullable()
+    console.log("rerendered", this.state, nodeTree)
     return (            
           <ContainerDisplay
             environment={this.state.environment}
@@ -241,9 +312,12 @@ class ChkFlow extends React.Component<Partial<Types.ChkFlowState>, Types.ChkFlow
             path={this.state.environment.homePath}
             getNodeInfo={this.getNodeInfo.bind(this)}
             getRelNodeInfo={this.getRelNodeInfo.bind(this)}
-            evaluateNode={this.evaluateNode.bind(this)}
+            updatePathRel={this.updatePathRel.bind(this)}
+            relId={this.state.environment.homePath[this.state.environment.homePath.length - 1].rel}
+            relKeys={Object.keys(this.state.nodes)}
+            // evaluateNode={this.evaluateNode.bind(this)}
             >
-            {this.getNodeTree(this.state.environment.homePath, false).extractNullable()}
+            {nodeTree}
           </ContainerDisplay>  
     )
   

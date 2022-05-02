@@ -124,10 +124,14 @@ const DefaultContainer = (props: Types.ContainerProps) => {
         </HeaderContainer>
         <ExecWindow
           environment={props.environment} 
-          path={props.environment.homePath}
+          nodePath={props.environment.homePath}
           getNodeInfo={props.getNodeInfo}
           getRelNodeInfo={props.getRelNodeInfo}
+          relKeys={props.relKeys}
+          relId={props.relId}
           evaluateNode={props.evaluateNode}
+          getNodeLabel={props.getNodeLabel}
+          updatePathRel={props.updatePathRel}
           />
         <div className="nodes-container">
           {props.children}

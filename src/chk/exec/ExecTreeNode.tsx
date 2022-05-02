@@ -1,5 +1,5 @@
 
-import React from 'react'
+import React, {useState} from 'react'
 import type * as Types from '../types' 
 import styled from 'styled-components'
 import * as R from 'ramda'
@@ -7,8 +7,19 @@ import { AddBox,
   IndeterminateCheckBoxOutlined, 
   CheckBoxOutlineBlankOutlined, 
   ArrowDropDownCircle, 
-  RadioButtonUnchecked, 
+  RadioButtonUnchecked,
+  LinkRounded,
   Adjust } from '@material-ui/icons';
+
+import {
+    Autocomplete 
+} from '@material-ui/lab';
+import {
+   TextField 
+} from '@material-ui/core';
+import {
+    UseAutocompleteProps
+} from '@material-ui/lab/useAutocomplete';
 
   const NodeContainer = styled.div`
   & {
@@ -23,6 +34,10 @@ import { AddBox,
   &>.node-main.active{
       border: 1px solid rgba(33,33,33,.5);
       background-color: rgba(33,33,33,.3);
+  }
+  &>.node-main.linking{
+      border: 1px solid rgba(33,33,33,.5);
+      background-color: rgba(99,33,22,.3);
   }
   &>div.node-main>div.node-tail {
       // border: 1px solid orange;
@@ -47,6 +62,9 @@ import { AddBox,
   &>.node-children.hidden {
       transition: opacity 1300ms;
       opacity: 0;
+  }
+  &.linking {
+    border: 1px solid rgba(44,22,33,.5);
   }
   
   
@@ -112,10 +130,10 @@ const DefaultTreeNode = function(props:Types.TreeNodeProps){
     const saveEdit = async () => {  console.log("save", textContainer.textContent, props.nodeInfo); props.updateNode(props.nodePath, {...props.nodeInfo, text: textContainer.textContent ? textContainer.textContent : '' }) }
 
     const keyPressListen = async (event:React.KeyboardEvent) => {
+        await saveEdit()
         let {atStart, atEnd} = getSelectionTextInfo(textContainer)
         if (atEnd){
             if (event.key == 'Enter' ){
-                await saveEdit()
                 event.preventDefault()
                 // console.log('newChild')
                 props.newChildUnderThisNode(props.nodePath)
@@ -175,13 +193,28 @@ const DefaultTreeNode = function(props:Types.TreeNodeProps){
     let textContainer: HTMLDivElement;
     // console.log(props.getRelation(props.nodePath))
 
+    const autocompleteProps: UseAutocompleteProps<Types.NodeId, false, true, false> = {
+        freeSolo: false,
+        multiple: false,
+        disableClearable: true,
+        options: props.relKeys
+    }
 
+
+    const handleLinkAttempt = async (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        event.preventDefault()
+        console.log('link attempt', props.activeNode, props.pathElem.id)
+        props.linkNode(props.activeNode, props.pathElem.id)
+        // props.setIsLinking(false)
+        return false
+    }
+    console.log('props', props)
 
     return (
-        <NodeContainer className="node-container" id={props.pathElem.id}>
+        <NodeContainer className={"node-container"} id={props.pathElem.id} onClick={(e)=> props.isLinking && handleLinkAttempt(e)}>
         <div 
-            className={ (R.equals(props.activeNode, props.nodePath)) ? "node-main active" :  "node-main"}
-            onFocusCapture={() => {props.setActiveNode(props.nodePath)}}
+            className={ (R.equals(props.activeNode, props.nodePath)) ? "node-main active" :  props.isLinking ? "node-main linking" : "node-main"}
+            onFocusCapture={() => {!props.isLinking && props.setActiveNode(props.nodePath)}}
             >
             <HeadContainer className="head-container">
                 <div onClick={()=>{toggleCollapse()}} className={ props.children ? "collapse-toggle": "collapse-toggle no-children"}>
@@ -194,8 +227,26 @@ const DefaultTreeNode = function(props:Types.TreeNodeProps){
                 <div onClick={moveToHere} onDoubleClick={setAsRoot} className="menu-dot">
                     <Adjust />
                 </div>
+                <Autocomplete 
+                    {...autocompleteProps}
+                    style={{ width: '130px', height: '20px', margin: '0' }}
+                    value={props.relId}
+                    // onChange={(event, value) => {setRelValue(value || '')}}
+                    onChange={(event, value) => {props.updatePathRel(props.nodePath, value)}}
+                    renderInput={(params) => (<TextField
+                            {...params}
+                            size='small'
+                            style={{ margin: '0' }}
+                            margin="normal"
+                            variant="outlined"
+                            InputProps={{ ...params.InputProps, type: 'search' }}
+                        />)}
+                />
 
             </HeadContainer>
+            {props.nodeInfo.text === '' && <button
+                onClick={() => props.setIsLinking(true)} 
+            > <LinkRounded /></button>}
             <div
                 className="node-tail"
                 contentEditable="true"  

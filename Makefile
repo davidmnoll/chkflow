@@ -1,4 +1,6 @@
 
+run: 
+	npm run start
 
 test:
 	npx tsc

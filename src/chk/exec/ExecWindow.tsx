@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { useState } from 'react'
 import * as Types from '../types'
 import styled from 'styled-components'
 import { 
@@ -16,8 +17,22 @@ import {
  } from '@material-ui/icons';
 import { Nothing } from 'purify-ts/Maybe';
 
+import {
+    Autocomplete 
+} from '@material-ui/lab';
+import {
+   TextField 
+} from '@material-ui/core';
+import {
+    UseAutocompleteProps
+} from '@material-ui/lab/useAutocomplete';
 
- const ExecContainer = styled.div`
+
+import {
+  pathCurrentLast
+} from '../Utils'
+
+const ExecContainer = styled.div`
 
  & {
    // border: 1px solid black;
@@ -59,8 +74,10 @@ const showComponentFromData = (componentData: Types.ComponentData, environment: 
 
 const ExecWindow = (props: Types.ExecWindowProps) => { 
 
-  const maybeNodeData = props.getNodeInfo(props.path);
-  const maybeRelNodeData = props.getRelNodeInfo(props.path);
+  const [relValue, setRelValue] = useState(props.relId);
+
+  const maybeNodeData = props.getNodeInfo(props.nodePath);
+  const maybeRelNodeData = props.getRelNodeInfo(props.nodePath);
 
   const getRelDisplayComponent = (rel: Types.ChkFlowNode, environment: Types.ChkFlowEnvironment) => {
     console.log('getRelDisplayComponent', rel);
@@ -77,10 +94,32 @@ const ExecWindow = (props: Types.ExecWindowProps) => {
     console.log('ExecWindow DisplayComponent Lazy Default', maybeNodeData);
     return showComponentFromData({"type":"div", "children": [ {"type":"div", "contents": "Rel"}, {"type":"div", "contents": "{id}"}]}, props.environment)
   })
-    
+   
+  
+  console.log('node IDs', props.relKeys)
+  const autocompleteProps: UseAutocompleteProps<Types.NodeId, false, true, false> = {
+    freeSolo: false,
+    multiple: false,
+    disableClearable: true,
+    options: props.relKeys
+  }
 
   return (
         <ExecContainer className="header-container">
+            <div>
+              <Autocomplete 
+                {...autocompleteProps}
+                value={props.relId}
+                style={{ width: '200px' }}
+                onChange={(event, value) => {props.updatePathRel(props.nodePath, value)}}
+                renderInput={(params) => (<TextField
+                        {...params}
+                        variant="outlined"
+                        InputProps={{ ...params.InputProps, type: 'search' }}
+                        // defaultValue={props.relId}
+                    />)}
+              />
+            </div>
             <div>
               <DisplayComponent />
                 

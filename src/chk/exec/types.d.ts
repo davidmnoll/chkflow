@@ -32,15 +32,14 @@ type ChkFlowOptions = {
 
 type ChkFlowEnvironment = {
     homePath: NodePath,
-    activeNode: NodePath | null, 
-    isLinking: boolean
+    activeNode: NodePath | null
 }
 
 type ChkFlowSettings = Partial<ChkFlowState>
 
 type NodeId = string
 type PathElem = {rel: string, id: NodeId}
-type NodePath = [PathElem, ...PathElem[]] | [...PathElem[] | PathElem]
+type NodePath = [PathElem, ...PathElem[]]
 
 interface ComponentData {
     type: string;
@@ -78,10 +77,6 @@ interface TreeNodeProps {
     pathElem: PathElem;
     activeNode: NodePath;
     relKeys: NodeId[];
-    relId: NodeId;
-    isLinking: boolean;
-    setIsLinking: (isLinking: boolean)=> void;
-    linkNode: (nodePath: NodePath, nodeId: NodeId)=> void;
     setActiveNode: (path:NodePath) => void;
     updateNode: (path: NodePath, data: ChkFlowNode) => void;
     setPath: (path: NodePath) => void;
@@ -95,40 +90,30 @@ interface TreeNodeProps {
     newChildUnderThisNode: (path:NodePath) => void;
     moveCursorToVisuallyNextNode: (path:NodePath) => void
     moveCursorToVisuallyPreviousNode: (path:NodePath) => void
-    updatePathRel: (path:NodePath, rel:NodeId) => void
-    getNodeLabel: (nodeId: NodeId) => string
 }
 // interface TreeNodeState<T extends BaseNodeInfo> {
 
 // }
 
 interface ContainerProps {
-    relKeys: NodeId[];
     environment: ChkFlowEnvironment;
     nodes: ChkFlowNodes;
     children: TreeNodeComponent[];
     path : NodePath;
-    relId: NodeId;
     setPath: (path: NodePath) => void;
     resetNodes: () => void;
     getNodeInfo: (path: NodePath) => Maybe<ChkFlowNode>;
-    updatePathRel: (path:NodePath, rel:NodeId) => void
     getRelNodeInfo: (path: NodePath) => Maybe<ChkFlowNode>;
     evaluateNode : (nodeData: ChkFlowNode, relNodeData: ChkFlowNode) => Either<any, Error>;
-    getNodeLabel: (nodeId: NodeId) => string
 }
 
 
 interface ExecWindowProps {
-    relKeys: NodeId[];
     environment: ChkFlowEnvironment;
-    nodePath : NodePath;
-    relId: NodeId;
+    path : NodePath;
     getNodeInfo: (path: NodePath) => Maybe<ChkFlowNode>;
     getRelNodeInfo: (path: NodePath) => Maybe<ChkFlowNode>;
     evaluateNode : (nodeData: ChkFlowNode, relNodeData: ChkFlowNode) => Either<any, Error>;
-    updatePathRel: (path:NodePath, rel:NodeId) => void
-    getNodeLabel: (nodeId: NodeId) => string
 }
 
 
@@ -141,10 +126,13 @@ interface DisplayNodeProps {
     nodeData: ChkFlowNode;
 }
 
-
+interface RelInputProps {
+    relKeys : NodeId[];
+}
 
 
 export type {
+    RelInputProps,
     ExecWindowProps,
     DisplayNodeProps,
     ChkFlowState,
