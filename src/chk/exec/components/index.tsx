@@ -7,7 +7,8 @@
 // import {
 //     UseAutocompleteProps
 // } from '@material-ui/lab/useAutocomplete';
-// import type * as Types from '../types' 
+import { propSatisfies } from 'ramda'
+import type * as Types from '../types' 
 
 
 // const RelInput = function(props: Types.RelInputProps) {
@@ -37,7 +38,30 @@
 //     />)
 // }
 
+const NodeCheckbox = function(props: Types.NodeCheckboxProps) {
+    
+    const data = props.nodeData
+    const relData = data[props.relId]
+    const status = relData 
+
+    const onChange: React.ChangeEventHandler<HTMLInputElement> = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const value = event.target.checked
+        const newData = props.nodeData ? {
+            ...props.nodeData,
+            [props.relId]: value
+        } : {
+            [props.relId]: value
+        }
+        console.log('onChange', value, event) 
+        console.log('nodedata', newData, props.nodeData)
+        props.updateNodeData(newData)
+    }
+
+
+    return (<div><label htmlFor="relinput">{props.relLabel}</label><input type="checkbox" checked={!!status} name="relinput" onChange={onChange} /></div>)
+}
 
 export {
 //     RelInput
+    NodeCheckbox
 }

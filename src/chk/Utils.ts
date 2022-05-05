@@ -232,7 +232,7 @@ function delArrayPrefix(a1original: any[], a2original: any[]){
 function getSubs(state: Types.ChkFlowState, path: Types.NodePath): Maybe<Types.NodePath[]>{
   return pathCurrent(state, path).chain( curr => {
     let curr_last = R.last(curr) as Types.PathElem //Making sure this is possible in pathParent
-    console.log('getSubs', state.nodes)
+    // console.log('getSubs', state.nodes)
     let subarray = Object.keys(state.nodes[curr_last.id].rel).filter((id: Types.NodeId)=> state.nodes[id] !== undefined || id == 'child').map((childRel: Types.NodeId, index: number) => {
       return state.nodes[curr_last.id].rel[childRel].filter( (childRelElem: Types.NodeId)=> state.nodes[childRelElem] !== undefined ).map((childId: Types.NodeId, index: number)=> {
         return ([...path, {rel: childRel,id: childId}] as Types.NodePath) 

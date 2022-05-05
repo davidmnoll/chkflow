@@ -22,7 +22,7 @@ import {
   dummyEnvironment,
   defaultNodes,
   defaultEnvironment
-} from './Constant'
+} from './default/Constant'
 import DefaultContainer from './default/DefaultContainer'
 import DefaultTreeNode from './default/DefaultTreeNode'
 import ExecContainer from './exec/ExecContainer'
@@ -34,6 +34,7 @@ import {
   defaultExecNodes,
   defaultExecEnvironment
 } from './exec/Constant'
+import { RestoreOutlined } from '@material-ui/icons'
 //Todo: make generic & use generics for storing info etc.
 class ChkFlow extends React.Component<Partial<Types.ChkFlowState>, Types.ChkFlowState> { 
   constructor(props: Partial<Types.ChkFlowState>){
@@ -65,10 +66,10 @@ class ChkFlow extends React.Component<Partial<Types.ChkFlowState>, Types.ChkFlow
 
 
   setStateAndSave(state: Types.ChkFlowState, callback: Function | null = null){
-    console.log('SETSTATE', state)
+    // console.log('SETSTATE', state)
     return this.setState(state, ()=>{
       // this.state.setStateCallback(this.state)
-      console.log('state changed', this.state)
+      // console.log('state changed', this.state)
       if(callback !== null){
         callback();
       }
@@ -123,8 +124,17 @@ class ChkFlow extends React.Component<Partial<Types.ChkFlowState>, Types.ChkFlow
   }
 
   updatePathRel(path: Types.NodePath, rel: string ){
-    changeRelType(this.state, path, rel).map(
-      newState => this.setStateAndSave(newState)
+    // console.log('updatePathRel', path, rel)
+    return changeRelType(this.state, path, rel).map(
+      newState => {
+        this.setStateAndSave(newState, ()=> {
+          // console.log('newState', this.state, newState);
+          let lastElem = path.pop() as Types.PathElem;
+          let newPath = [...path, {id: lastElem.id, rel: rel}] as Types.NodePath
+          this.setHomePath(newPath)
+        })
+        return newState
+      }
     )
   }
   
@@ -218,40 +228,55 @@ class ChkFlow extends React.Component<Partial<Types.ChkFlowState>, Types.ChkFlow
     })
   }
 
-  // evaluateNode(path: Types.NodePath) : any{
-  //   const instructionRelKey = 'instruction';
-  //   const maybeNodeInfo = this.getNodeInfo(path);
-  //   maybeNodeInfo.map((node: Types.ChkFlowNode) => {
-  //     const maybeRelNodeInfo = this.getRelNodeInfo(path);
-  //     const maybeResData = maybeRelNodeInfo.map(([rel, relNode]) => {
-  //       const maybeResult = node.rel[rel].reduce(( acc, item ) => {
-  //         const maybeItem = this.evaluateNode([...path, {id: item, rel: rel}]);
-  //         return maybeItem.map( (itemNodeInfo: any) => {
-  //           return this.applyInstruction(
-  //           relNode,  //probably a better way to do this and make sure it exists
-  //           node
-  //         )});
-  //           }, node.data)
+  getNodeResultData(path: Types.NodePath, relKey: Types.NodeId): Maybe<Types.ChkFlowNodeData> {
+    let maybeLastElem = pathCurrentLast(this.state, path)
+    return maybeLastElem.chainNullable((x: Types.PathElem) => this.state.nodes[x.id].data[relKey])
+  }
 
+  evaluateNode(path: Types.NodePath) : any{
+    const maybeNodeInfo = this.getNodeInfo(path);
+    const maybeRelNodeInfo = this.getRelNodeInfo(path);
+    console.log("evaluate node", path, maybeNodeInfo, maybeRelNodeInfo)
+    maybeNodeInfo.map( (nodeInfo: Types.ChkFlowNode) => {
+      console.log('found node info', nodeInfo)
+      Object.entries(nodeInfo.rel).forEach(([rel, nodeIds]) => {
+        nodeIds.forEach(nodeId => {
+          this.evaluateNode([...path, {id: nodeId, rel: rel}])
+        })
+      })
+      console.log('evaluated children')
+      maybeRelNodeInfo.map( ([relKey, relNodeInfo]: [Types.NodeId, Types.ChkFlowNode]) => {
+        const relResults = Object.entries(nodeInfo.rel).map(([rel, nodeIds]) => {
+          return nodeIds.map(nodeId => {
+            return this.getNodeResultData([...path, {id: nodeId, rel: rel}], rel)
+          })
 
-  //     };
-  //     this.updateNode(path, {...node, data: {...node.data, rel: {}}})
-  //   })
+        })
+        if (relKey === 'task'){
+          console.log("rel is task")
 
-  //   // const instruction = getInstruction(relNodeInfo)
-  //   // const result = instruction({, this.state.environment)
-  //   // Object.entries(nodeInfo.rel).map( ([rel, memebers]: [string, string[]] ) => {
+          const isReady = relResults.length > 0 ? relResults.flat().every(x => x.equals(Just(true))) : nodeInfo.data[relKey] === true
+          const isFinished = nodeInfo.data[relKey] === true && isReady
+          console.log("is finsihed?", isFinished)
+          if (isReady){
+            console.log("is ready")
+            this.updateNode(path, {...nodeInfo, data: {[relKey]: isFinished}, rel: {}})
+          }else{
+            console.log("is not ready", relResults)
+          } 
+        } else {
+          console.log('other rel chosen', relKey)
+        }
+      })
 
-  //   // })
-  //   // console.log('evaluate', nodeInfo, relNodeInfo)
-  //   // return result
-  //   return null
-  // }
+    });
+
+  }
 
 
   renderNodeChildren(path :Types.NodePath): Maybe<React.ReactNode[]>{
     return getSubs(this.state, path).map((x: Types.NodePath[]) => {
-      console.log('renderNodeChildren get subs', x)
+      // console.log('renderNodeChildren get subs', x)
       return x.map((y: Types.NodePath) => (this.getNodeTree(y, true).extractNullable()))
     })
   }
@@ -267,7 +292,7 @@ class ChkFlow extends React.Component<Partial<Types.ChkFlowState>, Types.ChkFlow
         const thisRelKey = pathCurrentLast(this.state, path).extractNullable()?.rel
         const reduciblePath = path as Types.PathElem[]
         const isSecondInCycle = reduciblePath.reduce((acc: number, current: Types.PathElem) => ( (current.id === thisNodeId) ? acc + 1 : acc), 0) > 1
-        console.log('render layer', renderLayer)
+        // console.log('render layer', renderLayer)
         if (renderLayer){
           return  (<NodeDisplay
             key={curr.id}
@@ -302,7 +327,7 @@ class ChkFlow extends React.Component<Partial<Types.ChkFlowState>, Types.ChkFlow
   render (){
     const ContainerDisplay = this.state.containerComponent as React.ElementType;
     const nodeTree = this.getNodeTree(this.state.environment.homePath, false).extractNullable()
-    console.log("rerendered", this.state, nodeTree)
+    // console.log("rerendered", this.state, nodeTree)
     return (            
           <ContainerDisplay
             environment={this.state.environment}
@@ -311,11 +336,12 @@ class ChkFlow extends React.Component<Partial<Types.ChkFlowState>, Types.ChkFlow
             resetNodes={this.resetNodes.bind(this)}
             path={this.state.environment.homePath}
             getNodeInfo={this.getNodeInfo.bind(this)}
+            updateNode={this.updateNode.bind(this)}
             getRelNodeInfo={this.getRelNodeInfo.bind(this)}
             updatePathRel={this.updatePathRel.bind(this)}
             relId={this.state.environment.homePath[this.state.environment.homePath.length - 1].rel}
             relKeys={Object.keys(this.state.nodes)}
-            // evaluateNode={this.evaluateNode.bind(this)}
+            evaluateNode={this.evaluateNode.bind(this)}
             >
             {nodeTree}
           </ContainerDisplay>  

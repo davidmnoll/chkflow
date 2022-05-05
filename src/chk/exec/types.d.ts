@@ -1,5 +1,5 @@
 import React from "react";
-import { Types } from "./ChkFlow";
+import { Types as ChkFlowTypes } from "./ChkFlow";
 import { 
     trace,
     traceBreak,
@@ -95,25 +95,37 @@ interface TreeNodeProps {
 
 // }
 
-interface ContainerProps {
+
+interface ExecTreeContainerProps extends ChkFlowTypes.ContainerProps {
+    relKeys: NodeId[];
     environment: ChkFlowEnvironment;
     nodes: ChkFlowNodes;
     children: TreeNodeComponent[];
     path : NodePath;
+    relId: NodeId;
     setPath: (path: NodePath) => void;
+    updateNode: (path: NodePath, data: ChkFlowNode) => void;
     resetNodes: () => void;
     getNodeInfo: (path: NodePath) => Maybe<ChkFlowNode>;
+    updatePathRel: (path:NodePath, rel:NodeId) => void
     getRelNodeInfo: (path: NodePath) => Maybe<ChkFlowNode>;
-    evaluateNode : (nodeData: ChkFlowNode, relNodeData: ChkFlowNode) => Either<any, Error>;
+    evaluateNode : (path: NodePath) => Either<any, Error>;
+    getNodeLabel: (nodeId: NodeId) => string
 }
 
-
 interface ExecWindowProps {
+    relKeys: NodeId[];
     environment: ChkFlowEnvironment;
-    path : NodePath;
+    relId: NodeId;
+    nodePath : NodePath;
+    updateNode: (path: NodePath, data: ChkFlowNode) => void;
+    updatePathRel: (path:NodePath, rel:NodeId) => void
+    getNodeLabel: (nodeId: NodeId) => string;
+    setPath: (path: NodePath) => void;
     getNodeInfo: (path: NodePath) => Maybe<ChkFlowNode>;
     getRelNodeInfo: (path: NodePath) => Maybe<ChkFlowNode>;
-    evaluateNode : (nodeData: ChkFlowNode, relNodeData: ChkFlowNode) => Either<any, Error>;
+    evaluateNode : (path: NodePath) => void;
+    nodeInfo: ChkFlowNode;
 }
 
 
@@ -130,19 +142,30 @@ interface RelInputProps {
     relKeys : NodeId[];
 }
 
+type ChkFlowNodeData = any;
+
+interface NodeCheckboxProps {
+    nodeData: ChkFlowNodeData;
+    updateNodeData: (nodeData: ChkFlowNodeData) => void;
+    relLabel: string;
+    relId: NodeId;
+    // relNode: ChkFlowNode;
+}
 
 export type {
     RelInputProps,
     ExecWindowProps,
+    ExecTreeContainerProps,
     DisplayNodeProps,
     ChkFlowState,
     ChkFlowSettings,
     ChkFlowEnvironment,
     ChkFlowNodes,
     ChkFlowNode,
+    ChkFlowNodeData,
     ComponentData,
     TreeNodeProps,
-    ContainerProps,
+    NodeCheckboxProps,
     ContainerComponent,
     TreeNodeComponent,
     ExecWindowComponent,

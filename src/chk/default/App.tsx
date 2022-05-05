@@ -1,12 +1,12 @@
 import './App.css';
-import ChkFlow from './chk';
+import ChkFlow from '..';
 import type {
   ChkFlowEnvironment,
   ChkFlowNodes,
   ChkFlowSettings,
   ChkFlowState,
   ChkFlowNode
-} from './chk'
+} from '..'
 
 function getNodes(): ChkFlowNodes | undefined{
   let savedNodes = window.localStorage.getItem('chkFlowNodes')
@@ -45,7 +45,7 @@ function App() {
     nodes: nodes as ChkFlowNodes,
     environment: environment as ChkFlowEnvironment,
     showDummies: true,
-    execEnabled: true,
+    execEnabled: false,
   }  
 
 

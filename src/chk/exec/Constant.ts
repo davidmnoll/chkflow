@@ -12,7 +12,10 @@ const dummyNodes = {
     '6' : { text: 'milk', rel: {'task': []}, data: {}, isCollapsed: false  },
     '7' : { text: 'eggs', rel: {'task': []}, data: {}, isCollapsed: false  },
     'child' : { text: '[child] (you should not be seeing this)', rel: {}, data: {}, isCollapsed: false },
-    'task' : { text: '[task] (you should not be seeing this)', rel: {}, data: {}, isCollapsed: false },
+    'type' : { text: '[type] (you should not be seeing this)', rel: {}, data: {}, isCollapsed: false },
+    'boolean' : { text: '[boolean] (you should not be seeing this)', rel: {'type': ['type']}, data: {}, isCollapsed: false },
+    'task' : { text: '[task] (you should not be seeing this)', rel: {}, data: {
+    }, isCollapsed: false },
     // 'rel' : { text: '[rel] (you should not be seeing this)', rel: {'child': ['1','3']}, data: {}, isCollapsed: false },
 }
 const dummyEnvironment = {

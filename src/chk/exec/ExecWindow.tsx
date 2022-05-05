@@ -1,9 +1,9 @@
 import * as React from 'react'
 import { useState } from 'react'
-import * as Types from '../types'
+import * as Types from './types'
 import styled from 'styled-components'
 import { 
-  Button,
+  Button, Checkbox,
  } from '@material-ui/core';
 
 import { 
@@ -27,6 +27,9 @@ import {
     UseAutocompleteProps
 } from '@material-ui/lab/useAutocomplete';
 
+import {
+  NodeCheckbox
+} from './components'
 
 import {
   pathCurrentLast
@@ -74,7 +77,6 @@ const showComponentFromData = (componentData: Types.ComponentData, environment: 
 
 const ExecWindow = (props: Types.ExecWindowProps) => { 
 
-  const [relValue, setRelValue] = useState(props.relId);
 
   const maybeNodeData = props.getNodeInfo(props.nodePath);
   const maybeRelNodeData = props.getRelNodeInfo(props.nodePath);
@@ -85,7 +87,7 @@ const ExecWindow = (props: Types.ExecWindowProps) => {
   }
 
 
-  console.log('ExecWindow props', maybeNodeData, maybeRelNodeData, props)
+  // console.log('ExecWindow props', maybeNodeData, maybeRelNodeData, props)
   const DisplayComponent = maybeRelNodeData.map(([_, rel]: [String, Types.ChkFlowNode]) => {
     console.log('ExecWindow DisplayComponent', rel);
     return getRelDisplayComponent(rel, props.environment)
@@ -95,6 +97,21 @@ const ExecWindow = (props: Types.ExecWindowProps) => {
     return showComponentFromData({"type":"div", "children": [ {"type":"div", "contents": "Rel"}, {"type":"div", "contents": "{id}"}]}, props.environment)
   })
    
+
+  const InputComponent = maybeRelNodeData.map(([relId, relData]: [String, Types.ChkFlowNode]) => {
+    console.log('ExecWindow InputComponent', relId, relData);
+    if (relId === "task") {
+
+      return NodeCheckbox 
+    } else if (relId === "child") {
+      return () => (<></>)
+    } else {
+
+      return (props: Types.NodeCheckboxProps) => (<div><label htmlFor="relinput">{props.relLabel}</label><input type="text" name="relinput" /></div>)
+    }
+  }).orDefaultLazy(() => {
+    return (props: Types.NodeCheckboxProps) => <div> Could Not Identify Node </div>
+  })
   
   console.log('node IDs', props.relKeys)
   const autocompleteProps: UseAutocompleteProps<Types.NodeId, false, true, false> = {
@@ -103,6 +120,12 @@ const ExecWindow = (props: Types.ExecWindowProps) => {
     disableClearable: true,
     options: props.relKeys
   }
+  const nodeData = props.nodeInfo.data
+  const updateNodeData = (data: Types.ChkFlowNodeData)=>{
+    console.log('DATA')  
+    props.updateNode(props.nodePath, {...props.nodeInfo, data: {...nodeData, ...data} })
+  }
+  
 
   return (
         <ExecContainer className="header-container">
@@ -121,14 +144,14 @@ const ExecWindow = (props: Types.ExecWindowProps) => {
               />
             </div>
             <div>
-              <DisplayComponent />
+              <InputComponent relLabel={props.relId} nodeData={nodeData} updateNodeData={updateNodeData} relId={props.relId} />
                 
             </div>
             <div>
               <Button 
                 className="execute-button" 
                 variant="contained"
-                onClick={()=>props.evaluateNode(maybeNodeData, maybeRelNodeData)}
+                onClick={()=>props.evaluateNode(props.nodePath)}
               >
                 Execute
               </Button>

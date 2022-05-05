@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
+import DefaultApp from './chk/default/App';
+import ExecApp from './chk/exec/App';
 import ChkFlow from "./chk"
 
 
@@ -10,7 +11,7 @@ import ChkFlow from "./chk"
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <ExecApp />
   </React.StrictMode>,
   document.getElementById('root')
 );

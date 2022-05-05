@@ -103,34 +103,32 @@ interface TreeNodeProps {
 // }
 
 interface ContainerProps {
+    relKeys: NodeId[];
     environment: ChkFlowEnvironment;
     nodes: ChkFlowNodes;
     children: TreeNodeComponent[];
     path : NodePath;
+    relId: NodeId;
     setPath: (path: NodePath) => void;
     resetNodes: () => void;
     getNodeInfo: (path: NodePath) => Maybe<ChkFlowNode>;
+    updatePathRel: (path:NodePath, rel:NodeId) => void
     getRelNodeInfo: (path: NodePath) => Maybe<ChkFlowNode>;
-    setPath: (path: NodePath) => void;
-    evaluateNode : (path: NodePath) => Either<any, Error>;
+    evaluateNode : (nodeData: ChkFlowNode, relNodeData: ChkFlowNode) => Either<any, Error>;
+    getNodeLabel: (nodeId: NodeId) => string
 }
-
 
 
 type TreeNodeComponent = React.FC<TreeNodeProps> | React.Component<TreeNodeProps>
-type ContainerComponent<P extends ContainerProps> = React.FC<P> | React.Component<P>
-
-
-interface DisplayNodeProps {
-    nodeData: ChkFlowNode;
-}
+type ContainerComponent = React.FC<ContainerProps> | React.Component<ContainerProps>
+type ExecWindowComponent = React.FC<ExecWindowProps> | React.Component<ExecWindowProps>
 
 
 
-type ChkFlowNodeData = any;
+
+
 
 export type {
-    ChkFlowNodeData,
     DisplayNodeProps,
     ChkFlowState,
     ChkFlowSettings,
@@ -142,6 +140,7 @@ export type {
     ContainerProps,
     ContainerComponent,
     TreeNodeComponent,
+    ExecWindowComponent,
     NodeId,
     PathElem,
     NodePath,

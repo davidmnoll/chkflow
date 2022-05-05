@@ -1,5 +1,5 @@
 import * as React from 'react'
-import * as Types from '../types.d'
+import * as Types from './types.d'
 import styled from 'styled-components'
 import * as R from 'ramda'
 
@@ -83,7 +83,7 @@ const HeaderContainer = styled.div`
 
 //Todo: create default header
 
-const DefaultContainer = (props: Types.ContainerProps) => { 
+const DefaultContainer = (props: Types.ExecTreeContainerProps) => { 
   
   const relevantNodes = R.tail(props.environment.homePath as Types.NodePath); // Nodes except the root, which should be hidden
   const history = relevantNodes.map((value: Types.PathElem , index:number)=>{
@@ -99,7 +99,8 @@ const DefaultContainer = (props: Types.ContainerProps) => {
   
   const goHome = () => { props.setPath([{id:'0', rel:'root'}]) }
 
-
+  const nodeInfo = props.getNodeInfo(props.environment.homePath).extract()
+  console.log('nodeInfo', nodeInfo)
   
   return (
     <OuterContainer className="chkflow-container">
@@ -122,17 +123,20 @@ const DefaultContainer = (props: Types.ContainerProps) => {
             <Cancel />
           </div>
         </HeaderContainer>
-        <ExecWindow
+        {nodeInfo !== undefined && <ExecWindow
           environment={props.environment} 
           nodePath={props.environment.homePath}
           getNodeInfo={props.getNodeInfo}
           getRelNodeInfo={props.getRelNodeInfo}
           relKeys={props.relKeys}
           relId={props.relId}
+          nodeInfo={nodeInfo}
+          setPath={props.setPath}
           evaluateNode={props.evaluateNode}
           getNodeLabel={props.getNodeLabel}
           updatePathRel={props.updatePathRel}
-          />
+          updateNode={props.updateNode}
+        />}
         <div className="nodes-container">
           {props.children}
         </div>
